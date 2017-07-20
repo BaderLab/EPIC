@@ -36,6 +36,10 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir ):
 		print "Num valid ppis in eval pos: %i" % len(eval.positive)
 		print "Num valid ppis in eval neg: %i" % len(eval.negative)
 
+		netF = "%s.fold_%s.pred.txt" % (output_dir, index)
+		clustF = "%s.fold_%s.clust.txt" % (output_dir, index)
+
+
 		# Evaluate classifier
 		# utils.bench_clf(scoreCalc, train, eval, clf, output_dir, verbose=True)
 		# Predict protein interaction based on n_fold cross validation
@@ -50,16 +54,13 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir ):
 			edge = "\t".join(sorted([prota, protb]))
 			pred_all_ppis.add(edge)
 
-
-		netF = "%s.fold_%s.pred.txt" % (output_dir, index)
-		clustF = "%s.fold_%s.clust.txt" % (output_dir, index)
-
 		outFH = open(netF, "w")
 		print >> outFH, "\n".join(network)
 		outFH.close()
 
 		# Predicting clusters
 		utils.predict_clusters(netF, clustF)
+
 
 		# Evaluating predicted clusters
 		pred_clusters = GS.Clusters(False)
@@ -559,8 +560,10 @@ def run_epic_with_feature_combinations(feature_combination, ref_GS, scoreCalc, c
 	return n_fold_cross_validation(10, ref_GS, feature_comb, clf, output_dir)
 
 def calc_feature_combination(args):
-	feature_combination, input_dir, use_rf, num_cores, scoreF, ref_complexes, output_dir = args
+	feature_combination, se, input_dir, use_rf, cutoff, num_cores, scoreF, ref_complexes, output_dir = args
 	#Create feature combination
+	cutoff = float(cutoff)/100
+
 	if feature_combination == "00000000": sys.exit()
 	this_scores = get_fs_comb(feature_combination)
 	num_cores = int(num_cores)
@@ -575,7 +578,7 @@ def calc_feature_combination(args):
 	ref_gs = Goldstandard_from_cluster_File(ref_complexes)
 
 
-	scoreCalc = CS.CalculateCoElutionScores(this_scores, "", scoreF, num_cores=num_cores, cutoff=0.5)
+	scoreCalc = CS.CalculateCoElutionScores(this_scores, "", scoreF, num_cores=num_cores, cutoff=cutoff)
 
 	"""
 	head, all_e_scores = utils.elutionDatas_to_treeview(elution_datas, foundprots)
@@ -603,6 +606,7 @@ def calc_feature_combination(args):
 	scoreCalc.scores = scoreCalc.scores[0:ppi_index,:]
 	print scoreCalc.scores.shape
 	"""
+
 	scoreCalc.readTable(scoreF, ref_gs)
 
 	scores, head = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, output_dir)
@@ -610,7 +614,7 @@ def calc_feature_combination(args):
 #	scores, head = n_fold_cross_validation(10, ref_gs, scoreCalc, clf, output_dir)
 
 	outFH = open(output_dir + ".eval.txt" , "w")
-	se = input_dir.split(os.sep)[-2]
+	#se = input_dir.split(os.sep)[-2]
 	print "FS\tSE\tCLF\t" + head
 	print "%s\t%s\t%s\t" % (feature_combination, se, clf_name) + scores
 
@@ -656,14 +660,25 @@ def orth_map(args):
 	outFH.close()
 
 def calc_scores(args):
-	fs, numcores, cutoff, e_dir, outF = args
+	topred = []
+	if args[0] == "-ref":
+		_, refF, fs, numcores, cutoff, e_dir, outF = args
+		gs = Goldstandard_from_cluster_File(refF)
+		topred = list(gs.positive | gs.negative)
+		print len(topred)
+	else:
+		fs, numcores, cutoff, e_dir, outF = args
+
+
+
 	numcores = int(numcores)
 	cutoff = float(cutoff)
 
 	this_fs = get_fs_comb(fs)
 	prots, edatas = utils.load_data(e_dir, this_fs)
 	scoreCalc = CS.CalculateCoElutionScores(this_fs, edatas, outF, num_cores=numcores, cutoff=cutoff)
-	scoreCalc.calculate_coelutionDatas()
+	if topred == []: topred = scoreCalc.getAllPairs()
+	scoreCalc.calculateScores(topred)
 
 def main():
 	mode = sys.argv[1]

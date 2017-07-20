@@ -913,7 +913,7 @@ class CalculateCoElutionScores():
 			del candidatePPis
 			print("After filtering %i PPIs" % (len(filteredPPIs)))
 			allfilteredPPIs |= filteredPPIs
-		print("Num of PPIs across all data stes after filtering %i" % (len(allfilteredPPIs)))
+		print("Num of PPIs across all data sets after filtering %i" % (len(allfilteredPPIs)))
 		return allfilteredPPIs
 
 	def calculate_coelutionDatas(self, gs=""):
