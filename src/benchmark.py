@@ -7,7 +7,7 @@ import utils as utils
 import matplotlib.pyplot as plt
 from scipy.spatial import distance
 from scipy.stats import zscore
-import glob
+import glob, math
 import random as rnd
 
 
@@ -35,6 +35,8 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir ):
 		print "Num valid ppis in training neg: %i" % len(train.negative)
 		print "Num valid ppis in eval pos: %i" % len(eval.positive)
 		print "Num valid ppis in eval neg: %i" % len(eval.negative)
+		train.positive -= eval.positive
+		train.negative -= eval.negative
 
 		netF = "%s.fold_%s.pred.txt" % (output_dir, index)
 		clustF = "%s.fold_%s.clust.txt" % (output_dir, index)
@@ -85,6 +87,9 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir ):
 	out_scores, out_head= "%i\t%i\t" % (len(pred_all_ppis), len(pred_all_clusters.get_complexes())), "Num_pred_PPIS\tNUM_pred_CLUST\t"
 	if len(pred_all_clusters.complexes)>0:
 		scores, head = utils.clustering_evaluation(all_gs.complexes, pred_all_clusters, "", True)
+	else:
+		scores = "\t".join(["0"]*8)
+		head = "\t".join(["mmr", "overlapp", "simcoe", "mean_simcoe_overlap", "sensetivity", "ppv", "accuracy", "sep"])
 
 
 	out_scores += scores

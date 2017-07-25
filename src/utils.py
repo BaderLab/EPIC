@@ -251,7 +251,7 @@ def create_goldstandard(target_taxid, valprots):
 
 
 def clustering_evaluation(eval_comp, pred_comp, prefix, verbose= True):
-	head = "\t".join(["%s %s" % (prefix, h) for h in ["mmr", "overlapp", "simcoe", "mean_simcoe_overlap", "sensetivity", "ppv", "accuracy", "sep"]])
+	head = "\t".join(["%s%s" % (prefix, h) for h in ["mmr", "overlapp", "simcoe", "mean_simcoe_overlap", "sensetivity", "ppv", "accuracy", "sep"]])
 	cluster_scores = "\t".join(map(str, pred_comp.clus_eval(eval_comp)))
 	if verbose:
 		tmp_head = head.split("\t")
