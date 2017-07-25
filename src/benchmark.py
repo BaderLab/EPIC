@@ -35,8 +35,12 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir ):
 		print "Num valid ppis in training neg: %i" % len(train.negative)
 		print "Num valid ppis in eval pos: %i" % len(eval.positive)
 		print "Num valid ppis in eval neg: %i" % len(eval.negative)
-		train.positive -= eval.positive
-		train.negative -= eval.negative
+
+
+
+		print "Overlap positive %i" % ( len(train.positive & eval.positive))
+		print "Overlap negative %i" % ( len(train.negative & eval.negative))
+
 
 		netF = "%s.fold_%s.pred.txt" % (output_dir, index)
 		clustF = "%s.fold_%s.clust.txt" % (output_dir, index)

@@ -113,9 +113,13 @@ class Goldstandard_from_Complexes():
 			for eval_id in eval_clust_ids: evaluation.complexes.addComplex(eval_id, self.complexes.complexes[eval_id])
 
 			training.make_pos_neg_ppis()
+			evaluation.make_pos_neg_ppis()
+
+			training.positive -= evaluation.positive
+			training.negative -= evaluation.negative
+
 			training.rebalance()
 
-			evaluation.make_pos_neg_ppis()
 			out_folds.append((training, evaluation))
 
 		return out_folds
