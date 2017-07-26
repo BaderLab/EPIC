@@ -370,14 +370,19 @@ def elutionDatas_to_treeview(eDatas, foundprots):
 	out = {}
 	colnums = {}
 	header = []
+	all_prots = set([])
 	for eData in eDatas:
 		name = eData.name
 		colnum = eData.elutionMat.shape[1]
 		colnums[name] = colnum
 		prefix = "%s.F" % name
 		header.extend(map(lambda x: "%s%s" % (prefix, x), range(1,colnum+1)))
+		all_prots |= set(eData.prot2Index.keys())
 
-	for prot in foundprots:
+
+	if foundprots != "": all_prots &= foundprots
+
+	for prot in all_prots:
 		out[prot] = []
 		for eData in eDatas:
 			scores = [0]*colnums[eData.name]

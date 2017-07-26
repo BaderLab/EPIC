@@ -112,11 +112,20 @@ class Goldstandard_from_Complexes():
 			for train_id in train_clust_ids: training.complexes.addComplex(train_id, self.complexes.complexes[train_id])
 			for eval_id in eval_clust_ids: evaluation.complexes.addComplex(eval_id, self.complexes.complexes[eval_id])
 
+			all_eval_prots = evaluation.complexes.get_all_prots()
+
+			for comp in training.complexes.complexes:
+				training.complexes.complexes[comp] = training.complexes.complexes[comp] - all_eval_prots
+
 			training.make_pos_neg_ppis()
 			evaluation.make_pos_neg_ppis()
 
+			print "train Pos " + str(len(training.positive))
+
 			training.positive -= evaluation.positive
 			training.negative -= evaluation.negative
+
+			print "train Pos " + str(len(training.positive))
 
 			training.rebalance()
 
@@ -428,6 +437,12 @@ class Clusters():
 	def get_complexes(self):
 		return self.complexes
 
+	def get_all_prots(self):
+		out = set()
+		for comp in self.complexes:
+			out |= self.complexes[comp]
+		return out
+
 	def addComplex(self, complex, members):
 		if complex not in self.complexes:
 			self.complexes[complex] = set([])
@@ -611,20 +626,16 @@ class Clusters():
 			return "%f\t%f\t%f" % (out_overlap, out_simcoe, out_comb)
 
 	def sensitivity(self, reference):
-		max_overlap_per_predicted_clustes = {}
-		sum_of_all_cluster_sizes = 0
-		for predicted_cluster in self.complexes:
-			if predicted_cluster not in max_overlap_per_predicted_clustes: max_overlap_per_predicted_clustes[predicted_cluster] = 0
-			sum_of_all_cluster_sizes += len(self.complexes[predicted_cluster])
-			for reference_cluster in reference.complexes:
+		sum_all_ref = 0.0
+		sum_all_ref_overlaps = 0.0
+		for reference_cluster in reference.complexes:
+			sum_all_ref += len(reference.complexes[reference_cluster])
+			max_overlap_for_this_ref = 0
+			for predicted_cluster in self.complexes:
 				overlap = len(self.complexes[predicted_cluster] & reference.complexes[reference_cluster])
-				max_overlap_per_predicted_clustes[predicted_cluster] = max( max_overlap_per_predicted_clustes[predicted_cluster], overlap)
-		max_overlap_per_predicted_clustes = sum(max_overlap_per_predicted_clustes.values())
-		if sum_of_all_cluster_sizes == 0:
-			return 0
-		else:
-			return max_overlap_per_predicted_clustes/sum_of_all_cluster_sizes
-
+				if overlap > max_overlap_for_this_ref: max_overlap_for_this_ref = overlap
+			sum_all_ref_overlaps += max_overlap_for_this_ref
+		return sum_all_ref_overlaps/sum_all_ref
 
 	def ppv(self, reference):
 		n = len(self.complexes)
@@ -637,7 +648,7 @@ class Clusters():
 		if np.sum(overlap_mat) == 0:
 			return 0
 		else:
-			return np.sum(overlap_mat.max(axis=0))/np.sum(overlap_mat)
+			return np.sum(overlap_mat.max(axis=1))/np.sum(overlap_mat)
 
 
 	def acc(self, reference, sn = None, ppv = None):
