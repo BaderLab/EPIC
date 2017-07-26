@@ -95,7 +95,7 @@ class Goldstandard_from_Complexes():
 		return self.positive | self.negative
 
 
-	def n_fols_split(self, num_folds):
+	def n_fols_split(self, num_folds, overlap="False"):
 
 		ref_cluster_ids = self.complexes.complexes.keys()
 		out_folds = []
@@ -114,18 +114,12 @@ class Goldstandard_from_Complexes():
 
 			all_eval_prots = evaluation.complexes.get_all_prots()
 
-			for comp in training.complexes.complexes:
-				training.complexes.complexes[comp] = training.complexes.complexes[comp] - all_eval_prots
+			if not overlap:
+				for comp in training.complexes.complexes:
+					training.complexes.complexes[comp] = training.complexes.complexes[comp] - all_eval_prots
 
 			training.make_pos_neg_ppis()
 			evaluation.make_pos_neg_ppis()
-
-			print "train Pos " + str(len(training.positive))
-
-			training.positive -= evaluation.positive
-			training.negative -= evaluation.negative
-
-			print "train Pos " + str(len(training.positive))
 
 			training.rebalance()
 

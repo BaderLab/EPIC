@@ -13,10 +13,10 @@ import random as rnd
 
 # a function added by lucas, to use n_fold cross_validation to help select features.
 # a trial version though.
-def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir ):
+def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir , overlap):
 
 
-	tmp_train_eval_container = all_gs.n_fols_split(n_fold)  #(all_gs.split_into_n_fold2(n_fold, set(scoreCalc.ppiToIndex.keys()))["turpleKey"])
+	tmp_train_eval_container = all_gs.n_fols_split(n_fold, overlap)  #(all_gs.split_into_n_fold2(n_fold, set(scoreCalc.ppiToIndex.keys()))["turpleKey"])
 #	tmp_train_eval_container = (all_gs.split_into_n_fold2(n_fold, set(scoreCalc.ppiToIndex.keys()))["turpleKey"])
 
 
@@ -561,15 +561,15 @@ def bench_Bayes(args):
 
 	print "%s\n%s" % (out_head, "\n".join(out_scores))
 
-def run_epic_with_feature_combinations(feature_combination, ref_GS, scoreCalc, clf,  output_dir, valprots = []):
+def run_epic_with_feature_combinations(feature_combination, ref_GS, scoreCalc, clf, overlap, output_dir, valprots = []):
 	feature_comb = feature_selector([fs.name for fs in feature_combination], scoreCalc, valprots)
 	print feature_comb.scoreCalc.scores.shape
 	print scoreCalc.scores.shape
 
-	return n_fold_cross_validation(10, ref_GS, feature_comb, clf, output_dir)
+	return n_fold_cross_validation(10, ref_GS, feature_comb, clf, output_dir, overlap)
 
 def calc_feature_combination(args):
-	feature_combination, se, input_dir, use_rf, cutoff, num_cores, scoreF, ref_complexes, output_dir = args
+	feature_combination, se, input_dir, use_rf, overlap, cutoff, num_cores, scoreF, ref_complexes, output_dir = args
 	#Create feature combination
 	cutoff = float(cutoff)/100
 
@@ -577,6 +577,7 @@ def calc_feature_combination(args):
 	this_scores = get_fs_comb(feature_combination)
 	num_cores = int(num_cores)
 	use_rf = use_rf == "True"
+	overlap = overlap == "True"
 
 	clf_name = "SVM"
 	if use_rf: clf_name = "RF"
@@ -588,37 +589,9 @@ def calc_feature_combination(args):
 
 
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, "", scoreF, num_cores=num_cores, cutoff=cutoff)
-
-	"""
-	head, all_e_scores = utils.elutionDatas_to_treeview(elution_datas, foundprots)
-	num_fracs =  len(all_e_scores[all_e_scores.keys()[0]])
-	scoreCalc.ppiToIndex = {}
-	scoreCalc.IndexToPpi = {}
-	scoreCalc.scores = np.zeros((len(ref_gs.positive | ref_gs.negative), 2*num_fracs))
-	ppi_index = 0
-
-	print len(ref_gs.positive)
-
-	print len(ref_gs.negative)
-
-	for ppi in ref_gs.positive | ref_gs.negative:
-		protA, protB = ppi.split("\t")
-		if protA not in all_e_scores or protB not in all_e_scores: continue
-		edge_e_counts = []
-		edge_e_counts.extend(all_e_scores[protA])
-		edge_e_counts.extend(all_e_scores[protB])
-		scoreCalc.scores
-		scoreCalc.scores[ppi_index, :] = edge_e_counts
-		scoreCalc.ppiToIndex[ppi] = ppi_index
-		scoreCalc.IndexToPpi[ppi_index] = ppi
-		ppi_index += 1
-	scoreCalc.scores = scoreCalc.scores[0:ppi_index,:]
-	print scoreCalc.scores.shape
-	"""
-
 	scoreCalc.readTable(scoreF, ref_gs)
 
-	scores, head = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, output_dir)
+	scores, head = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, overlap, output_dir)
 
 #	scores, head = n_fold_cross_validation(10, ref_gs, scoreCalc, clf, output_dir)
 
