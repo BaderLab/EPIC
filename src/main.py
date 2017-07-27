@@ -55,13 +55,13 @@ def main():
 	print "training ppis: %i" % len(set(scoreCalc.ppiToIndex.keys()))
 
 	#n_fold cross validation to test the stability of preicted PPIs
-	utils.stability_evaluation(10, all_gs, scoreCalc, clf, output_dir, mode, anno_source, anno_F)
-	sys.exit()
+	#utils.stability_evaluation(10, all_gs, scoreCalc, clf, output_dir, mode, anno_source, anno_F)
+	#sys.exit()
 
 	#n_fold cross validation to select the best features.
-	n_fold_cross_validation(10, all_gs, scoreCalc, clf, output_dir, mode, anno_source, anno_F)
+	#n_fold_cross_validation(10, all_gs, scoreCalc, clf, output_dir, mode, anno_source, anno_F)
 
-	sys.exit()
+	#sys.exit()
 
 	###### actually predict the network using all data
 	train, eval = all_gs.split_into_holdout_training(set(scoreCalc.ppiToIndex.keys()))
