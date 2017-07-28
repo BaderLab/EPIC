@@ -74,7 +74,7 @@ def plotCurves(curves, outF, xlab, ylab):
 	plt.close()
 
 # @author Florian Goebels
-def predictInteractions(scoreCalc, clf, gs, eval, verbose= False, corss_validation = False):
+def predictInteractions(scoreCalc, clf, gs, eval, verbose= True, corss_validation = False):
 
 	ids_train, data_train, targets_train = scoreCalc.toSklearnData(gs)
 
@@ -92,6 +92,7 @@ def predictInteractions(scoreCalc, clf, gs, eval, verbose= False, corss_validati
 			if prediction == 1:
 				out.append("%s\t%f" % (edges[i], pred_prob[i]))	#Alternative code that also print label:out.append("%s\t%f\t%i" % (edges[i], pred_prob[i], prediction))
 		return out
+
 	out = []
 	tmpscores = np.zeros((100000, num_features))
 	edges = [""]*100000

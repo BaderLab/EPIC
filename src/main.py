@@ -43,8 +43,8 @@ def main():
 		all_gs = utils.create_goldstandard(target_taxid, foundprots)
 	else:
 		all_gs = Goldstandard_from_cluster_File(refF, foundprots)
-	all_gs = utils.create_goldstandard(target_taxid, foundprots)
-	#all_gs = Goldstandard_from_cluster_File(refF, foundprots)
+	#all_gs = utils.create_goldstandard(target_taxid, foundprots)
+	all_gs = Goldstandard_from_cluster_File(refF, foundprots)
 #	sys.exit()
 
 
@@ -55,13 +55,13 @@ def main():
 	print "training ppis: %i" % len(set(scoreCalc.ppiToIndex.keys()))
 
 	#n_fold cross validation to test the stability of preicted PPIs
-	utils.stability_evaluation(10, all_gs, scoreCalc, clf, output_dir, mode, anno_source, anno_F)
-	sys.exit()
+	#utils.stability_evaluation(10, all_gs, scoreCalc, clf, output_dir, mode, anno_source, anno_F)
+	#sys.exit()
 
 	#n_fold cross validation to select the best features.
-	n_fold_cross_validation(10, all_gs, scoreCalc, clf, output_dir, mode, anno_source, anno_F)
+	#n_fold_cross_validation(10, all_gs, scoreCalc, clf, output_dir, mode, anno_source, anno_F)
 
-	sys.exit()
+	#sys.exit()
 
 	###### actually predict the network using all data
 	train, eval = all_gs.split_into_holdout_training(set(scoreCalc.ppiToIndex.keys()))
@@ -76,7 +76,7 @@ def main():
 	print "Num valid ppis in eval neg: %i" % len(eval.negative)
 
 	# Evaluate classifier
-	utils.bench_clf(scoreCalc, train, eval, clf, output_dir, verbose=True)
+	#utils.bench_clf(scoreCalc, train, eval, clf, output_dir, verbose=True)
 
 	functionalData = ""
 	if mode != "exp":
@@ -85,7 +85,7 @@ def main():
 	print functionalData.scores.shape
 
 	# Predict protein interaction
-	network = utils.make_predictions(scoreCalc, mode, clf, all_gs, functionalData)
+	network = utils.make_predictions(scoreCalc, mode, clf, train, functionalData)
 	outFH = open("%s.%s.pred.txt" % (output_dir, mode + anno_source), "w")
 	print >> outFH, "\n".join(network)
 	outFH.close()
