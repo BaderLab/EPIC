@@ -1184,7 +1184,7 @@ class STRING:
 	def nameMapping(self):
 
 		#this is the url for STRING_id and Uniprot_id mapping file
-		url = "http://string-db.org/download/protein.aliases.v10/" + str(self.TaxID) + ".protein.aliases.v10.txt.gz"
+		url = "http://string-db.org/download/protein.aliases.v10.5/" + str(self.TaxID) + ".protein.aliases.v10.5.txt.gz"
 		filename_protein = url.split("/")[-1]
 
 		with open(filename_protein, "wb") as f:
@@ -1211,8 +1211,8 @@ class STRING:
 	def load_string(self):
 
 		# download the interaction data file from internet as compressed .gz file...
-		url2 = "http://string-db.org/download/protein.links.detailed.v10/" + str(
-			self.TaxID) + ".protein.links.detailed.v10.txt.gz"
+		url2 = "http://string-db.org/download/protein.links.detailed.v10.5/" + str(
+			self.TaxID) + ".protein.links.detailed.v10.5.txt.gz"
 		filename_interaction = url2.split("/")[-1]
 		with open(filename_interaction, "wb") as f:
 			r = requests.get(url2)
