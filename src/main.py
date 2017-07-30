@@ -44,8 +44,6 @@ def main():
 	else:
 		all_gs = Goldstandard_from_cluster_File(refF, foundprots)
 
-	all_gs.rebalance()
-
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, elution_datas, output_dir + ".scores.txt", num_cores=num_cores, cutoff= 0.5)
 	#scoreCalc.calculate_coelutionDatas(all_gs)
 	scoreCalc.readTable(output_dir + ".scores.txt", all_gs)

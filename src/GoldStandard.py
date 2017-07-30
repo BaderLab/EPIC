@@ -263,9 +263,6 @@ class Goldstandard_from_Complexes():
 
 		rnd.shuffle(tmp_clusters)
 
-		print "debug here"
-		print tmp_clusters
-
 		val_negatives = list(self.negative & val_ppis)
 		rnd.shuffle(val_negatives)
 		t_n = set(val_negatives[:int(len(val_negatives)/2)])
@@ -331,6 +328,10 @@ class Goldstandard_from_Complexes():
 			print("Warning: not enough negative data points in reference to create desired ratio pos:%s, neg:%s" % (len(self.positive), len(self.negative)))
 		else:
 			self.negative = set(rnd.sample(self.negative, len(self.positive)*self.ratio))
+
+			print "I am here"
+			print len(self.negative)
+			print len(self.positive)
 
 class Intact_clusters():
 
