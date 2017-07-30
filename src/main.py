@@ -39,14 +39,12 @@ def main():
 	foundprots, elution_datas = utils.load_data(input_dir, this_scores)
 
 	# Generate reference data set
-	if refF == "":
+	if refF == "none":
 		all_gs = utils.create_goldstandard(target_taxid, foundprots)
 	else:
 		all_gs = Goldstandard_from_cluster_File(refF, foundprots)
-	#all_gs = utils.create_goldstandard(target_taxid, foundprots)
-	all_gs = Goldstandard_from_cluster_File(refF, foundprots)
-#	sys.exit()
 
+	all_gs.rebalance()
 
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, elution_datas, output_dir + ".scores.txt", num_cores=num_cores, cutoff= 0.5)
 	#scoreCalc.calculate_coelutionDatas(all_gs)
