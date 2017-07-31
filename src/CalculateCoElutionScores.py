@@ -785,8 +785,8 @@ class CalculateCoElutionScores():
 			allPPIs = set(toMerge.ppiToIndex.keys())
 		if mode == "i":
 			allPPIs = set(self.ppiToIndex.keys()) & set(toMerge.ppiToIndex.keys())
-		print len(set(toMerge.ppiToIndex.keys()))
-		print len(allPPIs)
+		#print len(set(toMerge.ppiToIndex.keys()))
+		#print len(allPPIs)
 
 		numFeature_in_merge = len(toMerge.header)-2
 

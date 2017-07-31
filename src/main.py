@@ -80,8 +80,9 @@ def main():
 
 	print functionalData.scores.shape
 
+	all_gs.rebalance()
 	# Predict protein interaction
-	network = utils.make_predictions(scoreCalc, mode, clf, train, functionalData)
+	network = utils.make_predictions(scoreCalc, mode, clf, all_gs, functionalData)
 	outFH = open("%s.%s.pred.txt" % (output_dir, mode + anno_source), "w")
 	print >> outFH, "\n".join(network)
 	outFH.close()

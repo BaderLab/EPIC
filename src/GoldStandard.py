@@ -286,7 +286,7 @@ class Goldstandard_from_Complexes():
 				#i += 1
 				continue
 
-			print tmp_p
+			#print tmp_p
 
 #
 			if len(t_p)<=len(h_p):
@@ -328,10 +328,6 @@ class Goldstandard_from_Complexes():
 			print("Warning: not enough negative data points in reference to create desired ratio pos:%s, neg:%s" % (len(self.positive), len(self.negative)))
 		else:
 			self.negative = set(rnd.sample(self.negative, len(self.positive)*self.ratio))
-
-			print "I am here"
-			print len(self.negative)
-			print len(self.positive)
 
 class Intact_clusters():
 
@@ -580,12 +576,13 @@ class Clusters():
 	def mmr(self, reference):
 		matchingscores = {}
 		for ref_complex in reference.complexes:
-			if ref_complex not in matchingscores: matchingscores[ref_complex] = 0
+			if ref_complex not in matchingscores:
+				matchingscores[ref_complex] = 0
 			for complex in self.complexes:
 				matchingscores[ref_complex] = max(matchingscores[ref_complex], self.overlap(self.complexes[complex],  reference.complexes[ref_complex]))
 		mmr = matchingscores.values()
-		mmr = sum(mmr)/len(mmr)
-		return mmr
+		mmr_score = sum(mmr)/len(mmr)
+		return mmr_score
 
 	def get_matching_complexes(self, reference):
 		out_simcoe = set([])
@@ -628,7 +625,8 @@ class Clusters():
 			max_overlap_for_this_ref = 0
 			for predicted_cluster in self.complexes:
 				overlap = len(self.complexes[predicted_cluster] & reference.complexes[reference_cluster])
-				if overlap > max_overlap_for_this_ref: max_overlap_for_this_ref = overlap
+				if overlap > max_overlap_for_this_ref:
+					max_overlap_for_this_ref = overlap
 			sum_all_ref_overlaps += max_overlap_for_this_ref
 		return sum_all_ref_overlaps/sum_all_ref
 
