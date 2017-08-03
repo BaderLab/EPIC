@@ -114,17 +114,11 @@ class Goldstandard_from_Complexes():
 
 			all_eval_prots = evaluation.complexes.get_all_prots()
 
-			tl = 0
-			for comp in training.complexes.complexes: tl += len(training.complexes.complexes[comp])
-			print "Total ref size before removing overlap %i" % tl
+
 			if not overlap:
 				for comp in training.complexes.complexes:
 					training.complexes.complexes[comp] = training.complexes.complexes[comp] - all_eval_prots
-					if len(training.complexes.complexes[comp]) == 0: print "removed all prots"
 
-			tl = 0
-			for comp in training.complexes.complexes: tl += len(training.complexes.complexes[comp])
-			print "Total ref size after removing overlap %i" % tl
 
 			training.make_pos_neg_ppis()
 			evaluation.make_pos_neg_ppis()
