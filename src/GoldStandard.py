@@ -114,9 +114,17 @@ class Goldstandard_from_Complexes():
 
 			all_eval_prots = evaluation.complexes.get_all_prots()
 
+			tl = 0
+			for comp in training.complexes.complexes: tl += len(training.complexes.complexes[comp])
+			print "Total ref size before removing overlap %i" % tl
 			if not overlap:
 				for comp in training.complexes.complexes:
 					training.complexes.complexes[comp] = training.complexes.complexes[comp] - all_eval_prots
+					if len(training.complexes.complexes[comp]) == 0: print "removed all prots"
+
+			tl = 0
+			for comp in training.complexes.complexes: tl += len(training.complexes.complexes[comp])
+			print "Total ref size after removing overlap %i" % tl
 
 			training.make_pos_neg_ppis()
 			evaluation.make_pos_neg_ppis()
@@ -263,8 +271,7 @@ class Goldstandard_from_Complexes():
 
 		rnd.shuffle(tmp_clusters)
 
-		print "debug here"
-		print tmp_clusters
+
 
 		val_negatives = list(self.negative & val_ppis)
 		rnd.shuffle(val_negatives)
@@ -289,7 +296,6 @@ class Goldstandard_from_Complexes():
 				#i += 1
 				continue
 
-			print tmp_p
 
 #
 			if len(t_p)<=len(h_p):
@@ -328,7 +334,7 @@ class Goldstandard_from_Complexes():
 		#a trial version added by Lucas HU
 		if len(self.positive) * self.ratio > len(self.negative):
 			self.positive = set(rnd.sample(self.positive, int(len(self.negative) / self.ratio)))
-			print("Warning: not enough negative data points in reference to create desired ratio pos:%s, neg:%s" % (len(self.positive), len(self.negative)))
+			#print("Warning: not enough negative data points in reference to create desired ratio pos:%s, neg:%s" % (len(self.positive), len(self.negative)))
 		else:
 			self.negative = set(rnd.sample(self.negative, len(self.positive)*self.ratio))
 

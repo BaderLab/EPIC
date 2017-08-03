@@ -613,8 +613,12 @@ def get_fs_comb(comb_string):
 	return this_scores
 
 def make_eval(args):
+#	pred_clust_F, ref_clust_F, ppiF, cutoff, outF = args
+
 	pred_clust_F, ref_clust_F = args
 
+
+	#num_ppis = CS.lineCount(ppiF)
 	pred_clusters = GS.Clusters(False)
 	pred_clusters.read_file(pred_clust_F)
 
@@ -622,8 +626,28 @@ def make_eval(args):
 	ref_clusters.read_file(ref_clust_F)
 
 	#	utils.clustering_evaluation(train.complexes, pred_clusters, "Train", True)
-	utils.clustering_evaluation(ref_clusters, pred_clusters, "", True)
+	scores, head = utils.clustering_evaluation(ref_clusters, pred_clusters, "", True)
 
+	#outFH = open(outF, "w")
+	#outFH.write("%s\t%i\t%i\t%s\n" % (cutoff, num_ppis, len(pred_clusters.complexes), scores))
+	#outFH.close()
+
+def rf_cutoff(args):
+	pred_clust_F, ref_clust_F, ppiF, cutoff, outF = args
+
+	num_ppis = CS.lineCount(ppiF)
+	pred_clusters = GS.Clusters(False)
+	pred_clusters.read_file(pred_clust_F)
+
+	ref_clusters = GS.Clusters(False)
+	ref_clusters.read_file(ref_clust_F)
+
+	#	utils.clustering_evaluation(train.complexes, pred_clusters, "Train", True)
+	scores, head = utils.clustering_evaluation(ref_clusters, pred_clusters, "", True)
+
+ 	outFH = open(outF, "w")
+ 	outFH.write("%s\t%i\t%i\t%s\n" % (cutoff, num_ppis, len(pred_clusters.complexes), scores))
+ 	outFH.close()
 
 def orth_map(args):
 	clusterF, taxid, outF = args
@@ -700,6 +724,10 @@ def main():
 
 	elif mode == "-orthmap":
 		orth_map(sys.argv[2:])
+
+	elif mode == "-rfc":
+		rf_cutoff(sys.argv[2:])
+
 
 if __name__ == "__main__":
 	try:

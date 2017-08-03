@@ -70,6 +70,8 @@ def main():
 	print "Train comp:%i" % len(train.complexes.complexes)
 	print "Eval comp:%i" % len(eval.complexes.complexes)
 
+	print "Num valid ppis in all pos: %i" % len(all_gs.positive)
+	print "Num valid ppis in all neg: %i" % len(all_gs.negative)
 	print "Num valid ppis in training pos: %i" % len(train.positive)
 	print "Num valid ppis in training neg: %i" % len(train.negative)
 	print "Num valid ppis in eval pos: %i" % len(eval.positive)
@@ -77,6 +79,7 @@ def main():
 
 	# Evaluate classifier
 	#utils.bench_clf(scoreCalc, train, eval, clf, output_dir, verbose=True)
+	all_gs.rebalance()
 
 	functionalData = ""
 	if mode != "exp":
@@ -85,7 +88,7 @@ def main():
 	print functionalData.scores.shape
 
 	# Predict protein interaction
-	network = utils.make_predictions(scoreCalc, mode, clf, train, functionalData)
+	network = utils.make_predictions(scoreCalc, mode, clf, all_gs, functionalData)
 	outFH = open("%s.%s.pred.txt" % (output_dir, mode + anno_source), "w")
 	print >> outFH, "\n".join(network)
 	outFH.close()
