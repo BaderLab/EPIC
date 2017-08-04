@@ -10,10 +10,9 @@ from scipy.stats import zscore
 import glob, math
 import random as rnd
 
-
 # a function added by lucas, to use n_fold cross_validation to help select features.
 # a trial version though.
-def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir , overlap):
+def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir , overlap, local = True):
 	out_scores = []
 	out_head = []
 
@@ -43,10 +42,15 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir , overlap
 		clustF = "%s.fold_%s.clust.txt" % (output_dir, index)
 
 
+		if local :
 		# Evaluate classifier
 		# utils.bench_clf(scoreCalc, train, eval, clf, output_dir, verbose=True)
 		# Predict protein interaction based on n_fold cross validation
-		network = utils.make_predictions_cross_validation(scoreCalc, train, eval, clf)
+			network = utils.make_predictions_cross_validation(scoreCalc, train, eval, clf)
+
+		else:
+			network = utils.predictInteractions(scoreCalc, clf, train, verbose=True)
+
 
 		if len(network) == 0:
 			print "No edges were predicted"
@@ -542,15 +546,15 @@ def bench_Bayes(args):
 
 	print "%s\n%s" % (out_head, "\n".join(out_scores))
 
-def run_epic_with_feature_combinations(feature_combination, ref_GS, scoreCalc, clf, overlap, output_dir, valprots = []):
+def run_epic_with_feature_combinations(feature_combination, ref_GS, scoreCalc, clf, overlap, local, output_dir, valprots = []):
 	feature_comb = feature_selector([fs.name for fs in feature_combination], scoreCalc, valprots)
 	print feature_comb.scoreCalc.scores.shape
 	print scoreCalc.scores.shape
 
-	return n_fold_cross_validation(5, ref_GS, feature_comb, clf, output_dir, overlap)
+	return n_fold_cross_validation(5, ref_GS, feature_comb, clf, output_dir, overlap, local)
 
 def calc_feature_combination(args):
-	feature_combination, se, input_dir, use_rf, overlap, cutoff, num_cores, scoreF, ref_complexes, output_dir = args
+	feature_combination, se, input_dir, use_rf, overlap, local, cutoff, num_cores, scoreF, ref_complexes, output_dir = args
 	#Create feature combination
 	cutoff = float(cutoff)/100
 
@@ -559,6 +563,7 @@ def calc_feature_combination(args):
 	num_cores = int(num_cores)
 	use_rf = use_rf == "True"
 	overlap = overlap == "True"
+	local = local == "True"
 
 	clf_name = "SVM"
 	if use_rf: clf_name = "RF"
@@ -572,7 +577,7 @@ def calc_feature_combination(args):
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, "", scoreF, num_cores=num_cores, cutoff=cutoff)
 	scoreCalc.readTable(scoreF, ref_gs)
 
-	scores, head = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, overlap, output_dir)
+	scores, head = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, overlap, local, output_dir)
 
 #	scores, head = n_fold_cross_validation(10, ref_gs, scoreCalc, clf, output_dir)
 

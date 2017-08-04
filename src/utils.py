@@ -74,7 +74,7 @@ def plotCurves(curves, outF, xlab, ylab):
 	plt.close()
 
 # @author Florian Goebels
-def predictInteractions(scoreCalc, clf, gs, eval, verbose= True, corss_validation = False):
+def predictInteractions(scoreCalc, clf, gs, verbose= True):
 
 	ids_train, data_train, targets_train = scoreCalc.toSklearnData(gs)
 
