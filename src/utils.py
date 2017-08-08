@@ -151,7 +151,7 @@ def plotCurves(curves, outF, xlab, ylab):
 	plt.close()
 
 # @author Florian Goebels
-def predictInteractions(scoreCalc, clf, gs, eval, verbose= True, corss_validation = False):
+def predictInteractions(scoreCalc, clf, gs, verbose= True):
 
 	ids_train, data_train, targets_train = scoreCalc.toSklearnData(gs)
 
@@ -242,8 +242,9 @@ def make_predictions(score_calc, mode, clf, gs, fun_anno="", verbose = False):
 	#predict using both functional annotation and exp
 	if mode == "comb" or mode == "BR":
 		tmp_score_calc = copy.deepcopy(score_calc)
+		print tmp_score_calc.scores.shape
 		tmp_score_calc.add_fun_anno(fun_anno)
-
+		print tmp_score_calc.scores.shape
 		networks.append(predictInteractions(tmp_score_calc, clf, gs, verbose))
 
 	# return error when no networks is predicted
@@ -330,12 +331,18 @@ def create_goldstandard(target_taxid, valprots):
 
 def clustering_evaluation(eval_comp, pred_comp, prefix, verbose= True):
 	head = "\t".join(["%s%s" % (prefix, h) for h in ["mmr", "overlapp", "simcoe", "mean_simcoe_overlap", "sensetivity", "ppv", "accuracy", "sep"]])
-	cluster_scores = "\t".join(map(str, pred_comp.clus_eval(eval_comp)))
+
+	if len(pred_comp.complexes) > 0:
+		cluster_scores = "\t".join(map(str, pred_comp.clus_eval(eval_comp)))
+	else:
+		cluster_scores =  "\t".join(["0"]*8)
+
 	if verbose:
 		tmp_head = head.split("\t")
 		tmp_scores = cluster_scores.split("\t")
 		for i in range(len(tmp_head)):
 			print "%s\t%s" % (tmp_head[i], tmp_scores[i])
+
 	return cluster_scores, head
 
 def clusters_to_json(clusters, network, frac_names, eData):
