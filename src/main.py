@@ -135,8 +135,8 @@ def main():
 
 	all_scoreCalc.readTable(output_dir + ".scores.txt", all_gs)
 
-	#feature_list = utils.generate_all_corr_combination(8)
-	feature_list = ["10000010", "00000001"] # just test this one
+	feature_list = utils.generate_all_corr_combination(8)
+	#feature_list = ["10000010", "00000001"] # just test this one
 
 	# get all proteins in the reference data set.
 	valprots = all_gs.get_proteins()
@@ -159,9 +159,13 @@ def main():
 		print "\t".join([fs.name for fs in this_scores])
 
 		# Initialize CLF
-		use_rf = use_rf == "True"
+		if use_rf == "True":
+			USE_rf = "True"
+		else:
+			USE_rf = "False"
+
 		num_cores = int(num_cores)
-		clf = CS.CLF_Wrapper(num_cores, use_rf)
+		clf = CS.CLF_Wrapper(num_cores, USE_rf)
 
 		# get the feature names and put into an empty set
 		feature_names = set()
@@ -186,7 +190,6 @@ def main():
 		# Evaluate classifier
 		evaluation_results = utils.bench_by_PPI_clf(10, test_scoreCalc, train_gold_complexes, output_dir, clf, verbose=True)
 
-		print ("I am here")
 		print evaluation_results
 
 		outFH.write("%s\t%s\t%s\t%s" % (item_corr_combination,evaluation_results[0], evaluation_results[1],evaluation_results[2]))
