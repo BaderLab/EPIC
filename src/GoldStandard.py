@@ -702,7 +702,7 @@ class QuickGO():
 	def get_GO_complexes(self):
 		go_to_prot_map = {}
 		prot_to_go_map = {}
-		quickgoURL = "http://www.ebi.ac.uk/QuickGO/GAnnotation?goid=GO:0043234&tax=%s&format=tsv&limit=1000000000&evidence=IDA,IPI,EXP" % (self.taxid)
+		quickgoURL = "http://www.ebi.ac.uk/QuickGO/GAnnotation?goid=GO:0043234&tax=%s&format=tsv&limit=1000000000&evidence=IDA,IPI,EXP," % (self.taxid)
 		quickgoURL_FH = urllib2.urlopen(quickgoURL)
 		quickgoURL_FH.readline()
 		for line in quickgoURL_FH:
