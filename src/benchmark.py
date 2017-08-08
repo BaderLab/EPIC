@@ -674,6 +674,47 @@ def calc_scores(args):
 	if topred == []: topred = scoreCalc.getAllPairs()
 	scoreCalc.calculateScores(topred)
 
+def ppi_fs(args):
+	fsc, scoreF, use_rf, se, num_cores, refComplexesF, output_dir = args
+	num_cores = int(num_cores)
+	use_rf = use_rf == "True"
+
+	clf_name = "SVM"
+	if use_rf: clf_name = "RF"
+	clf = CS.CLF_Wrapper(num_cores, use_rf)
+
+	this_fs = get_fs_comb(fsc)
+	all_gs = Goldstandard_from_cluster_File(refComplexesF)
+	valprots = all_gs.get_proteins()
+
+	scoreCalc = CS.CalculateCoElutionScores(this_fs, "", scoreF, num_cores=num_cores, cutoff=-1)
+	scoreCalc.readTable(scoreF, all_gs)
+	print scoreCalc.scores.shape
+
+	test_scoreCalc = feature_selector([fs.name for fs in this_fs], scoreCalc, valprots)
+
+	print ("The size of chopped matrix for selected features")
+	print np.shape(test_scoreCalc.get_scoreCalc().get_all_scores())
+
+	print "training ppis: %i" % len(set(test_scoreCalc.ppiToIndex.keys()))
+
+	train_gold_complexes = all_gs.return_gold_standard_complexes(set(test_scoreCalc.ppiToIndex.keys()))
+
+	print "Train_gold comp:%i" % len(train_gold_complexes.complexes.complexes)
+
+	print "Num valid ppis in pos: %i" % len(train_gold_complexes.positive)
+	print "Num valid ppis in neg: %i" % len(train_gold_complexes.negative)
+
+	# Evaluate classifier
+	evaluation_results = utils.bench_by_PPI_clf(10, test_scoreCalc, train_gold_complexes, output_dir, clf, verbose=True)
+
+	print evaluation_results
+
+	outFH = open("%s.ppi_eva.txt" % (output_dir), "w")
+	print >> outFH, "FS\tSE\tCLF\tFM\tauPR\tauROC\n%s\t%s\t%s\t%s" % (fsc, se, clf_name, "\t".join(map(str, evaluation_results)))
+	outFH.close()
+
+
 def main():
 	mode = sys.argv[1]
 
@@ -715,6 +756,9 @@ def main():
 
 	elif mode == "-rfc":
 		rf_cutoff(sys.argv[2:])
+
+	elif mode == "-fs_ppi":
+		ppi_fs(sys.argv[2:])
 
 
 if __name__ == "__main__":

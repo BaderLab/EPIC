@@ -160,9 +160,9 @@ def main():
 
 		# Initialize CLF
 		if use_rf == "True":
-			USE_rf = "True"
+			USE_rf = True
 		else:
-			USE_rf = "False"
+			USE_rf = False
 
 		num_cores = int(num_cores)
 		clf = CS.CLF_Wrapper(num_cores, USE_rf)
