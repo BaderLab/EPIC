@@ -441,6 +441,8 @@ class feature_selector:
 		self.scoreCalc = self.filter_scoreCalc(scoreCalc)
 		self.ppiToIndex = self.scoreCalc.ppiToIndex
 
+	def get_scoreCalc(self):
+		return self.scoreCalc
 
 	def set_cutoff(self, cutoff):
 		self.cutoff = cutoff

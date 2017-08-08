@@ -25,6 +25,11 @@ class Goldstandard_from_Complexes():
 		self.ratio = ratio
 		self.positive, self.negative = set([]), set([])
 
+	# get all proteins from Goldstandard_from_Complexes object
+	# a trial version added by Lucas HU
+	def get_proteins(self):
+		return self.complexes.get_all_prots()
+
 	def set_lb(self, lb):
 		self.complexes.lb = lb
 
@@ -93,7 +98,6 @@ class Goldstandard_from_Complexes():
 
 	def get_edges(self):
 		return self.positive | self.negative
-
 
 	def n_fols_split(self, num_folds, overlap="False"):
 
@@ -256,7 +260,7 @@ class Goldstandard_from_Complexes():
 
 
 
-	def split_into_holdout_training(self, val_ppis, no_overlapp=False): #what is vak_ppis
+	def split_into_holdout_training(self, val_ppis, no_overlapp=False):
 
 		holdout = Goldstandard_from_Complexes("Holdout")
 		training = Goldstandard_from_Complexes("Training")
@@ -316,6 +320,48 @@ class Goldstandard_from_Complexes():
 		training.rebalance()
 		holdout.rebalance()
 		return training, holdout
+
+	# A function added by Lucas HU
+	# used for 10_fold_cross_validation_on PPI level
+	# a trial version
+	def return_gold_standard_complexes(self, val_ppis):
+
+		#holdout = Goldstandard_from_Complexes("Holdout")
+		training = Goldstandard_from_Complexes("Training")
+
+		tmp_clusters = self.complexes.complexes.keys()
+
+		rnd.shuffle(tmp_clusters)
+
+		val_negatives = list(self.negative & val_ppis)
+
+		rnd.shuffle(val_negatives)
+		t_n = set(val_negatives)
+
+		t_p = set([])
+
+		# Balance data set on positive, since we have way more negative than positive
+		skipped_comp = []
+		for complex in tmp_clusters:
+			tmp_cluster = Clusters(False)
+			tmp_cluster.addComplex(complex, self.complexes.complexes[complex])
+			tmp_p, _ = tmp_cluster.getPositiveAndNegativeInteractions()
+			tmp_p &= val_ppis  # tmp_p = tmp_p & val_ppis
+			if len(tmp_p) == 0:  # should keep all the complexes
+				skipped_comp.append(complex)
+
+				continue
+
+			t_p |= tmp_p
+			training.complexes.addComplex(complex, self.complexes.complexes[complex])
+
+		training.make_pos_neg_ppis(val_ppis)
+
+		training.negative = t_n
+
+		training.rebalance()
+
+		return training
 
 	# @author: Florian Goebels
 	# this method combines who CalculateCoElutionScores objects onto one by comping the toMerge object into the self object
