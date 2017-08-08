@@ -9,6 +9,81 @@ import GoldStandard as GS
 import copy
 import json
 
+# a new function added by Lucas HU for benchmark on PPIs level
+# this is used for two-levels optimization steps
+# a trial version
+def bench_by_PPI_clf(num_folds, scoreCalc, train_gold_complexes, outDir, clf, verbose=False):
+	_, data_train, targets_train = scoreCalc.toSklearnData(train_gold_complexes)
+
+	# define the correlation score matrix for positive PPIs and negative PPIs.
+	positive_data = np.zeros((sum(targets_train), np.shape(data_train)[1]))
+	negative_data = np.zeros((len(targets_train) - sum(targets_train), np.shape(data_train)[1]))
+
+	index = 0
+	positive_index = 0
+	negative_index = 0
+
+	for label in targets_train:
+		if label == 1:
+			positive_data[positive_index, :] = data_train[index, :]
+			positive_index = positive_index + 1
+		if label == 0:
+			negative_data[negative_index, :] = data_train[index, :]
+			negative_index = negative_index + 1
+		index = index + 1
+
+	fold_size_positive = int(np.shape(positive_data)[0] / num_folds)
+	fold_size_negative = int(np.shape(negative_data)[0] / num_folds)
+
+	# set the initial values for the three metrics
+	fmeasure_sum = 0
+	auc_pr_sum = 0
+	auc_roc_sum = 0
+
+
+	# do 10_fold_cross_validation and reported the avaergae value of all measurement metrics
+	for i in range(num_folds):
+		eval_positive = positive_data[fold_size_positive * i : fold_size_positive * (i + 1),:]
+		index_rows_for_eval_positive = list(range(fold_size_positive * i , fold_size_positive * (i + 1)))
+		train_positive = np.delete(positive_data, index_rows_for_eval_positive, 0)
+
+		eval_negative = negative_data[fold_size_negative * i : fold_size_negative * (i + 1),:]
+		index_rows_for_eval_negative = list(range(fold_size_negative * i, fold_size_negative * (i + 1)))
+		train_negative = np.delete(negative_data, index_rows_for_eval_negative, 0)
+
+		eval_data = np.concatenate((eval_positive, eval_negative), axis=0)
+		train_data = np.concatenate((train_positive, train_negative), axis=0)
+
+		eval_positive_labels = np.array([1] * np.shape(eval_positive)[0])
+		eval_negative_labels = np.array([0] * np.shape(eval_negative)[0])
+
+		train_positive_labels = np.array([1] * np.shape(train_positive)[0])
+		train_negative_labels = np.array([0] * np.shape(train_negative)[0])
+
+		eval_labels = np.concatenate([eval_positive_labels, eval_negative_labels])
+		train_labels = np.concatenate([train_positive_labels, train_negative_labels])
+
+		#train the classifier
+		clf.fit(train_data, train_labels)
+
+		#evaluate the classifier
+		precision, recall, fmeasure, auc_pr, auc_roc, curve_pr, curve_roc = clf.eval(eval_data, eval_labels)
+		fmeasure_sum = fmeasure_sum + fmeasure
+		auc_pr_sum = auc_pr_sum + auc_pr
+		auc_roc_sum = auc_roc_sum + auc_roc
+
+		recall_vals, precision_vals, threshold = curve_pr
+		threshold = np.append(threshold, 1)
+
+	fmeasure_average = fmeasure_sum / num_folds
+	auc_pr_average = auc_pr_sum / num_folds
+	auc_roc_average = auc_roc_sum / num_folds
+
+	avergae_list = [fmeasure_average, auc_pr_average, auc_roc_average]
+
+	return avergae_list
+
+
 def bench_clf(scoreCalc, train, eval, clf, outDir, verbose=False, format = "pdf"):
 	_, data_train, targets_train = scoreCalc.toSklearnData(train)
 	_, data_eval, targets_eval = scoreCalc.toSklearnData(eval)
@@ -27,6 +102,8 @@ def bench_clf(scoreCalc, train, eval, clf, outDir, verbose=False, format = "pdf"
 		for i in range(len(rownames)):
 			print rownames[i]
 			print val_scores[i]
+
+
 
 # a function added by Lucas HU for n_fold corss validation
 # a trial verison
@@ -491,3 +568,27 @@ def stability_evaluation(n_fold, all_gs, scoreCalc, clf, output_dir, mode, anno_
 
 	np.savetxt(filename1, overlapped_ratio_matrix_PPIs, delimiter = '\t')
 	np.savetxt(filename2, overlapped_ratio_matrix_complexes, delimiter='\t')
+
+# a function will automatically generate all possible correlation combinations
+# all possible correlation combinations were written in a list.
+# A trial function added by Lucas Hu
+def generate_all_corr_combination(n = 8):
+
+	i = np.array(np.indices(n * (2,))).reshape(n, -1)
+	i[:, np.argsort(i.sum(0)[::-1], kind='mergesort')].T[::-1]
+
+	features_list = list()
+	for index in range(1, 256):
+
+		features = i[:, index]
+
+		selected_list = list()
+
+		for j in range(0, 8):
+			selected_list.append(features[j])
+
+		feature_combination = ''.join(str(e) for e in selected_list)
+
+		features_list.append(feature_combination)
+
+	return features_list

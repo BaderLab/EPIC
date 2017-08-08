@@ -255,6 +255,9 @@ class Apex(object):
 		prot2profile = {}
 		return True
 
+	def get_name(self):
+		return self.name
+
 	calculateScore = staticmethod(calculateScore_apex)
 
 # @ author Florian Goebels
@@ -305,6 +308,9 @@ class Bayes:
 		prot2profile = {}
 		return True
 
+	def get_name(self):
+		return self.name
+
 	# have this call always after __init__ since init initialize the right bayes function
 	calculateScore = staticmethod(calculateScoreBayes)
 
@@ -332,6 +338,9 @@ class Wcc:
 		global prot2profile
 		prot2profile = {}
 		return True
+
+	def get_name(self):
+		return self.name
 
 
 # @ author Florian Goebels
@@ -395,6 +404,9 @@ class Poisson:
 		global prot2profile
 		prot2profile = {}
 
+	def get_name(self):
+		return self.name
+
 # @ author Florian Goebels
 # returns Mutual Information of two proteins
 # mutual information is based on entropy calculation MI(x,y) = H(x) + H(y) - H(x,y) 
@@ -447,6 +459,9 @@ class MutualInformation():
 		prot2profile = {}
 		return True
 
+	def get_name(self):
+		return self.name
+
 
 
 # @ author Florian Goebels
@@ -480,6 +495,9 @@ class Jaccard():
 		prot2profile = {}
 		return True
 
+	def get_name(self):
+		return self.name
+
 
 
 # @ author Florian Goebels
@@ -507,6 +525,9 @@ class Pearson:
 		global prot2profile
 		prot2profile = {}
 		return True
+
+	def get_name(self):
+		return self.name
 	
 # @ author Lucas Ming Hu
 # This is a helper class for getting GeneMANIA functional evidence for a given ElutionData object
@@ -695,6 +716,9 @@ class Euclidiean:
 		prot2profile = {}
 		return True
 
+	def get_name(self):
+		return self.name
+
 # @ author Florian Goebels
 # This is a helper class for calculating co elution scores for a given ElutionData object
 class CalculateCoElutionScores():
@@ -720,6 +744,9 @@ class CalculateCoElutionScores():
 		for eD in self.elutionData:
 			for score in self.features:
 				self.header.append("%s.%s" % (eD.name, score.name))
+
+	def get_all_scores(self):
+		return self.scores
 
 	def add_fun_anno(self, fun_anno):
 		self.fun_anno = fun_anno
