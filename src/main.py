@@ -144,6 +144,7 @@ def main():
 	# write the F1, auc_PR, auc_ROC to a file.
 	outFH = open("%s.%s.evaluation.txt" % (output_dir, "PPI_feature_selection"), "w")
 	outFH.write("%s\t%s\t%s\t%s" % ("features","F_measure", "Area_under_PR", "Area_under_ROC"))
+	outFH.write("\n")
 
 	for item_corr_combination in feature_list:
 
