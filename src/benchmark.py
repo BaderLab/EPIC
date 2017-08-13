@@ -229,7 +229,7 @@ def exp_comb(args):
 		print feature_comb.scoreCalc.scores.shape
 		print scoreCalc.scores.shape
 
-		scores, head =  n_fold_cross_validation(5, ref_gs, feature_comb, clf, output_dir, True)
+		scores, head =  n_fold_cross_validation(5, ref_gs, feature_comb, clf, output_dir, overlap = False, local = False)
 
 	#	head, scores = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, output_dir, valprots=this_foundprots)
 		print len(this_foundprots)
