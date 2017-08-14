@@ -229,7 +229,7 @@ def exp_comb(args):
 		print feature_comb.scoreCalc.scores.shape
 		print scoreCalc.scores.shape
 
-		scores, head =  n_fold_cross_validation(5, ref_gs, feature_comb, clf, output_dir, overlap = False, local = False)
+		scores, head =  n_fold_cross_validation(5, ref_gs, feature_comb, clf, "%s_%i_%i" % (output_dir, i, j ), overlap = False, local = False)
 
 	#	head, scores = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, output_dir, valprots=this_foundprots)
 		print len(this_foundprots)
@@ -548,15 +548,17 @@ def bench_Bayes(args):
 
 	print "%s\n%s" % (out_head, "\n".join(out_scores))
 
-def run_epic_with_feature_combinations(feature_combination, ref_GS, scoreCalc, clf, overlap, local, output_dir, valprots = []):
+def run_epic_with_feature_combinations(feature_combination, ref_GS, scoreCalc, clf, overlap, local, output_dir, faF="", valprots = []):
 	feature_comb = feature_selector([fs.name for fs in feature_combination], scoreCalc, valprots)
 	print feature_comb.scoreCalc.scores.shape
 	print scoreCalc.scores.shape
-
+	if faF !="":
+		fa = utils.get_FA_data(faF, "FILE")
+		feature_selector.add_fun_anno(fa)
 	return n_fold_cross_validation(5, ref_GS, feature_comb, clf, output_dir, overlap, local)
 
 def calc_feature_combination(args):
-	feature_combination, se, input_dir, use_rf, overlap, local, cutoff, num_cores, scoreF, ref_complexes, output_dir = args
+	feature_combination, se, input_dir, use_rf, overlap, local, cutoff, num_cores, scoreF, faF, ref_complexes, output_dir = args
 	#Create feature combination
 	cutoff = float(cutoff)/100
 
@@ -579,7 +581,7 @@ def calc_feature_combination(args):
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, "", scoreF, num_cores=num_cores, cutoff=cutoff)
 	scoreCalc.readTable(scoreF, ref_gs)
 
-	scores, head = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, overlap, local, output_dir)
+	scores, head = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, overlap, local, output_dir, faF)
 
 #	scores, head = n_fold_cross_validation(10, ref_gs, scoreCalc, clf, output_dir)
 
