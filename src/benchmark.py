@@ -552,8 +552,10 @@ def run_epic_with_feature_combinations(feature_combination, ref_GS, scoreCalc, c
 	feature_comb = feature_selector([fs.name for fs in feature_combination], scoreCalc, valprots)
 	print feature_comb.scoreCalc.scores.shape
 	print scoreCalc.scores.shape
-	if faF !="":
-		fa = utils.get_FA_data(faF, "FILE")
+	if faF != "":
+		fa = utils.get_FA_data("FILE", faF)
+		print "I am here"
+		print type(fa)
 		feature_selector.add_fun_anno(fa)
 	return n_fold_cross_validation(5, ref_GS, feature_comb, clf, output_dir, overlap, local)
 

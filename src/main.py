@@ -22,6 +22,8 @@ def Goldstandard_from_cluster_File(gsF, foundprots=""):
 def main():
 	feature_combination, input_dir, use_rf, num_cores, mode, anno_source, anno_F, target_taxid, refF, output_dir = sys.argv[1:]
 
+	print (feature_combination + "\t" + mode + "\t" + anno_source)
+
 	#Create feature combination
  	if feature_combination == "00000000": sys.exit()
 	scores = [CS.MutualInformation(2), CS.Bayes(3), CS.Euclidiean(), CS.Wcc(), CS.Jaccard(), CS.Poisson(5), CS.Pearson(), CS.Apex()]
