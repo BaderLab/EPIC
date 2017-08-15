@@ -96,10 +96,13 @@ def main():
 	PPI_eval_list = utils.bench_by_PPI_clf(5, tmp_score_calc, all_gs, output_dir, clf, verbose=False)
 
 	outFH = open("%s.%s.PPI_complexes_5_fold_cross_validation_evaluation.txt" % (output_dir, mode + anno_source), "w")
+	outFH.write("%s\t%s\t%s" % ("Fmeasure", "aucPR", "aucROC"))
 	outFH.write("%s\t%s\t%s" % (PPI_eval_list[0], PPI_eval_list[1], PPI_eval_list[2]))
+	outFH.write("\n")
 	outFH.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
 		complex_score_names[0], complex_score_names[1], complex_score_names[2], complex_score_names[3],
 		complex_score_names[4],complex_score_names[5],complex_score_names[6],complex_score_names[7]))
+	outFH.write("\n")
 	outFH.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
 		Complex_eval_list[0], Complex_eval_list[1], Complex_eval_list[2], Complex_eval_list[3],
 		Complex_eval_list[4], Complex_eval_list[5], Complex_eval_list[6], Complex_eval_list[7]))
