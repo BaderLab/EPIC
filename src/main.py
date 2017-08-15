@@ -75,7 +75,7 @@ def main():
 	print "Num valid ppis in eval neg: %i" % len(eval.negative)
 
 	# Evaluate classifier
- 	#utils.bench_clf(scoreCalc, train, eval, clf, output_dir, verbose=True)
+ 	utils.bench_clf(scoreCalc, train, eval, clf, output_dir, verbose=True)
 
  	functionalData = ""
 	if mode != "exp":

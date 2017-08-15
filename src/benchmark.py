@@ -556,7 +556,8 @@ def run_epic_with_feature_combinations(feature_combination, ref_GS, scoreCalc, c
 		fa = utils.get_FA_data("FILE", faF)
 		print "I am here"
 		print type(fa)
-		feature_selector.add_fun_anno(fa)
+		#feature_selector.add_fun_anno(fa)
+		feature_comb.add_fun_anno(fa)
 	return n_fold_cross_validation(5, ref_GS, feature_comb, clf, output_dir, overlap, local)
 
 def calc_feature_combination(args):
