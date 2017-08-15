@@ -90,11 +90,14 @@ def main():
 	tmp_score_calc = copy.deepcopy(scoreCalc)
 	tmp_score_calc.add_fun_anno(functionalData)
 	print tmp_score_calc.scores.shape
-	Complex_eval_list = bench.n_fold_cross_validation(5, all_gs, scoreCalc, clf, output_dir, "False", local=False)
-	PPI_eval_list = utils.bench_by_PPI_clf(5, tmp_score_calc, all_gs, output_dir, clf, verbose=False)
+	Complex_eval_list, complex_score_names = bench.n_fold_cross_validation(2, all_gs, scoreCalc, clf, output_dir, "False", local=False)
+	print "I am here"
+	print complex_score_names
+	print Complex_eval_list
+	#PPI_eval_list = utils.bench_by_PPI_clf(5, tmp_score_calc, all_gs, output_dir, clf, verbose=False)
 
 	outFH = open("%s.%s.PPI_complexes_5_fold_cross_validation_evaluation.txt" % (output_dir, mode + anno_source), "w")
-	outFH.write("%s\t%s\t%s" % (PPI_eval_list[0], PPI_eval_list[1], PPI_eval_list[2]))
+	#outFH.write("%s\t%s\t%s" % (PPI_eval_list[0], PPI_eval_list[1], PPI_eval_list[2]))
 	outFH.write(Complex_eval_list)
 	outFH.close()
 

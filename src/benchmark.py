@@ -19,6 +19,8 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir , overlap
 	tmp_train_eval_container = all_gs.n_fols_split(n_fold, overlap)  #(all_gs.split_into_n_fold2(n_fold, set(scoreCalc.ppiToIndex.keys()))["turpleKey"])
 #	tmp_train_eval_container = (all_gs.split_into_n_fold2(n_fold, set(scoreCalc.ppiToIndex.keys()))["turpleKey"])
 
+	# create a matrix to store the computed complexes vealuation metrics
+	complex_eval_score_vector = np.zeros((n_fold,8))
 
 	#the global cluster will contain all clusters predcited from n-fold-corss validation
 	for index in range(n_fold):
@@ -82,9 +84,12 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir , overlap
 		out_scores.append("%i\t%i\t%s" % (len(network), len(pred_clusters.get_complexes()), fold_scores))
 		out_head.append("Fold %i Num_pred_PPIS\tFold %i NUM_pred_CLUST\t%s" % ((index+1), (index+1), fold_head))
 
+		complex_eval_score_vector[index, :] = np.array(fold_scores.split("\t"))
 
-	return "\t".join(out_scores), "\t".join(out_head)
+	averaged_complex_eval_metrics_vector = np.mean(complex_eval_score_vector, axis = 0)
 
+	#return "\t".join(out_scores), "\t".join(out_head)
+	return averaged_complex_eval_metrics_vector, fold_head.split("\t")
 
 def cut(args):
 	fc, scoreF, outF = args
