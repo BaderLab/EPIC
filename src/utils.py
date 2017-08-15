@@ -54,6 +54,10 @@ def bench_by_PPI_clf(num_folds, scoreCalc, train_gold_complexes, outDir, clf, ve
 		eval_data = np.concatenate((eval_positive, eval_negative), axis=0)
 		train_data = np.concatenate((train_positive, train_negative), axis=0)
 
+		print "I am here"
+		print np.shape(train_positive)
+		print np.shape(train_negative)
+
 		eval_positive_labels = np.array([1] * np.shape(eval_positive)[0])
 		eval_negative_labels = np.array([0] * np.shape(eval_negative)[0])
 

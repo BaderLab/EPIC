@@ -5,6 +5,7 @@ import GoldStandard as GS
 import utils as utils
 import benchmark as bench
 import sys
+import copy
 import os
 import numpy as np
 
@@ -75,15 +76,30 @@ def main():
 	print "Num valid ppis in eval neg: %i" % len(eval.negative)
 
 	# Evaluate classifier
- 	utils.bench_clf(scoreCalc, train, eval, clf, output_dir, verbose=True)
+ 	#utils.bench_clf(scoreCalc, train, eval, clf, output_dir, verbose=True)
 
  	functionalData = ""
 	if mode != "exp":
 		functionalData = utils.get_FA_data(anno_source, anno_F)
+		print functionalData.scores.shape
 
-	print functionalData.scores.shape
-
+	# rebalance the data, so the negatve set is 5 times more than the positive one
 	all_gs.rebalance()
+
+	#PPI and complexes level evaluation based on five_fold_cross_validation...
+	tmp_score_calc = copy.deepcopy(scoreCalc)
+	tmp_score_calc.add_fun_anno(functionalData)
+	print tmp_score_calc.scores.shape
+	Complex_eval_list = bench.n_fold_cross_validation(5, all_gs, scoreCalc, clf, output_dir, "False", local=False)
+	PPI_eval_list = utils.bench_by_PPI_clf(5, tmp_score_calc, all_gs, output_dir, clf, verbose=False)
+
+	outFH = open("%s.%s.PPI_complexes_5_fold_cross_validation_evaluation.txt" % (output_dir, mode + anno_source), "w")
+	outFH.write("%s\t%s\t%s" % (PPI_eval_list[0], PPI_eval_list[1], PPI_eval_list[2]))
+	outFH.write(Complex_eval_list)
+	outFH.close()
+
+	sys.exit()
+
 	# Predict protein interaction
 	network = utils.make_predictions(scoreCalc, mode, clf, all_gs, functionalData)
 	outFH = open("%s.%s.pred.txt" % (output_dir, mode + anno_source), "w")
@@ -108,6 +124,9 @@ def main():
 	for i in range(len(tmp_head)):
 		outFH.write("%s\t%s" % (tmp_head[i], tmp_scores[i]))
 		outFH.write("\n")
+	outFH.close()
+
+
 
 if __name__ == "__main__":
 	try:
