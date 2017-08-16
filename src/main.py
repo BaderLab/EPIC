@@ -96,7 +96,7 @@ def main():
 
 	if mode == "fa":
 		tmp_score_calc = functionalData
-		
+
 	print tmp_score_calc.scores.shape
 
 
@@ -121,9 +121,21 @@ def main():
 	sys.exit()
 
 	# Predict protein interaction
+	RF_cutoff = 0.7 # the cut off set for RF classifier...
 	network = utils.make_predictions(scoreCalc, mode, clf, all_gs, functionalData)
 	outFH = open("%s.%s.pred.txt" % (output_dir, mode + anno_source), "w")
-	print >> outFH, "\n".join(network)
+
+	# only need the PPIs have the score over certain cutoff
+	final_network  = list()
+
+	for PPI in network:
+		items = PPI.split("\t")
+		if float(items[2]) >= RF_cutoff:
+			final_network.append(PPI)
+
+	print >> outFH, "\n".join(final_network)
+
+	#print final_network
 	outFH.close()
 
 	# Predicting clusters

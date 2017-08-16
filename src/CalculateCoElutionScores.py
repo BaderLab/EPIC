@@ -559,7 +559,8 @@ class Genemania:
 		if self.taxoID not in taxoIDspeciesDic:
 			return None #TODO throw illegal argument exception
 	
-		urlbase = 'http://genemania.org/data/current'
+		#urlbase = 'http://genemania.org/data/current'
+		urlbase = 'http://genemania.org/data/archive/2014-10-15/'
 		speciesURL = os.path.join(urlbase, taxoIDspeciesDic[self.taxoID])
 		r = urllib.urlopen(speciesURL).read()
 #		soup = BeautifulSoup(r)
@@ -603,7 +604,7 @@ class Genemania:
 			for fp in self.files:                        #for de-bugging, I only used the first three files
 				filename = str(fp.split('/')[-1])
 				if filename.startswith(f_evidence):
-#					print "Processing: %s" % (filename)
+					print "Processing: %s" % (filename)
 					fh = urllib2.urlopen(fp)
 					fh.readline()
 					for line in fh:
