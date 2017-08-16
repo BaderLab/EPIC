@@ -87,10 +87,20 @@ def main():
 	all_gs.rebalance()
 
 	#PPI and complexes level evaluation based on five_fold_cross_validation...
-	tmp_score_calc = copy.deepcopy(scoreCalc)
-	tmp_score_calc.add_fun_anno(functionalData)
+	if mode == "comb":
+		tmp_score_calc = copy.deepcopy(scoreCalc)
+		tmp_score_calc.add_fun_anno(functionalData)
+
+	if mode == "exp":
+		tmp_score_calc = copy.deepcopy(scoreCalc)
+
+	if mode == "fa":
+		tmp_score_calc = functionalData
+		
 	print tmp_score_calc.scores.shape
-	Complex_eval_list, complex_score_names = bench.n_fold_cross_validation(5, all_gs, scoreCalc, clf, output_dir, "False", local=False)
+
+
+	Complex_eval_list, complex_score_names = bench.n_fold_cross_validation(5, all_gs, tmp_score_calc, clf, output_dir, "False", local=False)
 	print complex_score_names
 	print Complex_eval_list
 	PPI_eval_list = utils.bench_by_PPI_clf(5, tmp_score_calc, all_gs, output_dir, clf, verbose=False)
