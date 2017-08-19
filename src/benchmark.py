@@ -58,7 +58,8 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir , overlap
 
 		for ppi in network:
 			prota, protb, score =  ppi.split("\t")
-			edge = "\t".join(sorted([prota, protb]))
+			if float(score)>0.68: # this is random forest confidence cut off
+				edge = "\t".join(sorted([prota, protb]))
 
 		outFH = open(netF, "w")
 		print >> outFH, "\n".join(network)
@@ -96,7 +97,7 @@ def cut(args):
 	empty_gs.negative = set([])
 	scoreCalc.readTable(scoreF, empty_gs)
 	print scoreCalc.to_predict
-	feature_comb = feature_selector([fs.name for fs in this_scores], scoreCalc, [])
+	feature_comb = feature_selector([fs.name for fs in this_scores], scoreCalc)
 	feature_comb.open()
 	outFH = open(outF, "w")
 	print >> outFH, "\t".join(feature_comb.scoreCalc.header)
@@ -172,7 +173,7 @@ def merge_MS(args):
 	outFH.close()
 
 def exp_comb(args):
-	FS, i, j, num_iter, input_dir, num_cores, ref_complexes, scoreF, fun_anno_F, output_dir = args
+	FS, i, j, num_iter, input_dir, num_cores, ref_complexes, scoreF, mode, fun_anno_F, output_dir = args
 	i,j, num_iter, num_cores = map(int, [i, j, num_iter, num_cores])
 
 
@@ -215,16 +216,17 @@ def exp_comb(args):
 	for iter in range(num_iter):
 		rnd.seed()
 		this_eprofiles = get_eData_comb(input_dir, i, j)
+		this_eprofiles_fnames = [f.rsplit(os.sep,1)[1] for f in this_eprofiles]
 		rnd.seed(1)
 
 
-		print [f.split(os.sep)[-1] for f in this_eprofiles]
+		print this_eprofiles_fnames
 
 		this_foundprots, _ = utils.load_data(this_eprofiles, [])
 		print len(this_foundprots)
 
-		feature_comb = feature_selector([fs.name for fs in this_scores], scoreCalc, this_foundprots)
-	#	feature_comb.add_fun_anno(functionalData)
+		feature_comb = feature_selector([fs.name for fs in this_scores], scoreCalc, this_foundprots, this_eprofiles_fnames)
+		if mode =="comb": feature_comb.add_fun_anno(functionalData)
 
 		print feature_comb.scoreCalc.scores.shape
 		print scoreCalc.scores.shape
@@ -232,7 +234,6 @@ def exp_comb(args):
 		scores, head =  n_fold_cross_validation(5, ref_gs, feature_comb, clf, "%s_%i_%i" % (output_dir, i, j ), overlap = False, local = False)
 
 	#	head, scores = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, output_dir, valprots=this_foundprots)
-		print len(this_foundprots)
 		out_head = head
 		all_scores.append("%i\t%i\t%s\t%i\t%s" % (i,j,search_engine, len(this_foundprots), scores))
 		print head
@@ -433,9 +434,9 @@ def Goldstandard_from_cluster_File(gsF, foundprots = ""):
 		return gs
 
 class feature_selector:
-	def __init__(self, feature_names, scoreCalc, valprots):
+	def __init__(self, feature_names, scoreCalc, valprots=[],  elution_file_names=[]):
 		self.valprots = valprots
-		self.get_cols(scoreCalc.header, feature_names)
+		self.get_cols(scoreCalc.header, feature_names, elution_file_names)
 		self.cutoff = scoreCalc.cutoff
 		self.to_predict = scoreCalc.to_predict
 		self.scoreCalc = self.filter_scoreCalc(scoreCalc)
@@ -447,19 +448,24 @@ class feature_selector:
 	def set_cutoff(self, cutoff):
 		self.cutoff = cutoff
 
-	def get_cols(self, header, feature_names):
+	def get_cols(self, header, feature_names, elution_file_names= []):
 		self.to_keep_header = [0, 1]
 		self.to_keep_score = []
+		print feature_names
+		print elution_file_names
 
 	#	fa_names = set(["evidence%i" % i for i in range(1,13)])
 	#	all_names = set(feature_names) | set (fa_names)
 
 		for i in range(2, len(header)):
 			colname = header[i]
-			scorename = colname.split(".")[-1]
-			if scorename in feature_names:
+			file_name, scorename = colname.rsplit(".",1)
+			print file_name
+			print scorename
+			if scorename in feature_names and (file_name in elution_file_names or elution_file_names ==[]):
 				self.to_keep_header.append(i)
 				self.to_keep_score.append(i - 2)
+		print self.to_keep_score
 
 	def valid_score(self, scores):
 		return len(list(set(np.where(scores >= self.cutoff)[0])))>0
@@ -693,7 +699,7 @@ def ppi_fs(args):
 	scoreCalc.readTable(scoreF, all_gs)
 	print scoreCalc.scores.shape
 
-	test_scoreCalc = feature_selector([fs.name for fs in this_fs], scoreCalc, valprots)
+	test_scoreCalc = feature_selector([fs.name for fs in this_fs], scoreCalc)
 
 	print ("The size of chopped matrix for selected features")
 	print np.shape(test_scoreCalc.get_scoreCalc().get_all_scores())
