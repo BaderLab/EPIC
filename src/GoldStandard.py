@@ -126,9 +126,6 @@ class Goldstandard_from_Complexes():
 
 			training.make_pos_neg_ppis()
 			evaluation.make_pos_neg_ppis()
-
-			training.rebalance()
-
 			out_folds.append((training, evaluation))
 
 		return out_folds
@@ -369,13 +366,12 @@ class Goldstandard_from_Complexes():
 	#		CalculateCoElutionScores toMerge a second CalculateCoElutionScores which should be combined with self object
 	#		mode donates how to merge the sets, left (l), right (r), union (u), or  (i)
 	def rebalance(self, ratio = 5):
-		#if the negative set is not larg enough, we choose to reblance it based on the negative set...
-		#a trial version added by Lucas HU
 		if len(self.positive) * self.ratio > len(self.negative):
 			self.positive = set(rnd.sample(self.positive, int(len(self.negative) / self.ratio)))
-			#print("Warning: not enough negative data points in reference to create desired ratio pos:%s, neg:%s" % (len(self.positive), len(self.negative)))
+			print("Warning: not enough negative data points in reference to create desired ratio pos:%s, neg:%s" % (len(self.positive), len(self.negative)))
 		else:
 			self.negative = set(rnd.sample(self.negative, len(self.positive)*self.ratio))
+
 
 class Intact_clusters():
 

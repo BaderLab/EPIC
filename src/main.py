@@ -5,6 +5,7 @@ import GoldStandard as GS
 import utils as utils
 import benchmark as bench
 import sys
+import copy
 import os
 import numpy as np
 
@@ -21,6 +22,8 @@ def Goldstandard_from_cluster_File(gsF, foundprots=""):
 
 def main():
 	feature_combination, input_dir, use_rf, num_cores, mode, anno_source, anno_F, target_taxid, refF, output_dir = sys.argv[1:]
+
+	print (feature_combination + "\t" + mode + "\t" + anno_source)
 
 	#Create feature combination
  	if feature_combination == "00000000": sys.exit()
@@ -53,12 +56,61 @@ def main():
 		functionalData = utils.get_FA_data(anno_source, anno_F)
 		print functionalData.scores.shape
 
+
 	all_gs.rebalance()
+
+	#PPI and complexes level evaluation based on five_fold_cross_validation...
+	if mode == "comb":
+		tmp_score_calc = copy.deepcopy(scoreCalc)
+		tmp_score_calc.add_fun_anno(functionalData)
+
+	if mode == "exp":
+		tmp_score_calc = copy.deepcopy(scoreCalc)
+
+	if mode == "fa":
+		tmp_score_calc = functionalData
+
+	print tmp_score_calc.scores.shape
+
+
+	Complex_eval_list, complex_score_names = bench.n_fold_cross_validation(5, all_gs, tmp_score_calc, clf, output_dir, "False", local=False)
+	print complex_score_names
+	print Complex_eval_list
+	PPI_eval_list = utils.bench_by_PPI_clf(5, tmp_score_calc, all_gs, output_dir, clf, verbose=False)
+
+	outFH = open("%s.%s.PPI_complexes_5_fold_cross_validation_evaluation.txt" % (output_dir, mode + anno_source), "w")
+	outFH.write("%s\t%s\t%s" % ("Fmeasure", "aucPR", "aucROC"))
+	outFH.write("%s\t%s\t%s" % (PPI_eval_list[0], PPI_eval_list[1], PPI_eval_list[2]))
+	outFH.write("\n")
+	outFH.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
+		complex_score_names[0], complex_score_names[1], complex_score_names[2], complex_score_names[3],
+		complex_score_names[4],complex_score_names[5],complex_score_names[6],complex_score_names[7]))
+	outFH.write("\n")
+	outFH.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
+		Complex_eval_list[0], Complex_eval_list[1], Complex_eval_list[2], Complex_eval_list[3],
+		Complex_eval_list[4], Complex_eval_list[5], Complex_eval_list[6], Complex_eval_list[7]))
+	outFH.close()
+
+	sys.exit()
+
 	# Predict protein interaction
-#	network = utils.make_predictions(scoreCalc, mode, clf, all_gs, functionalData)
-#	outFH = open("%s.%s.pred.txt" % (output_dir, mode + anno_source), "w")
-#	print >> outFH, "\n".join(network)
-#	outFH.close()
+
+	RF_cutoff = 0.7 # the cut off set for RF classifier...
+	network = utils.make_predictions(scoreCalc, mode, clf, all_gs, functionalData)
+	outFH = open("%s.%s.pred.txt" % (output_dir, mode + anno_source), "w")
+
+	# only need the PPIs have the score over certain cutoff
+	final_network  = list()
+
+	for PPI in network:
+		items = PPI.split("\t")
+		if float(items[2]) >= RF_cutoff:
+			final_network.append(PPI)
+
+	print >> outFH, "\n".join(final_network)
+
+	#print final_network
+	outFH.close()
 
 	# Predicting clusters
 #	utils.predict_clusters("%s.%s.pred.txt" % (output_dir, mode + anno_source), "%s.%s.clust.txt" % (output_dir, mode + anno_source))
@@ -77,6 +129,9 @@ def main():
 	for i in range(len(tmp_head)):
 		outFH.write("%s\t%s" % (tmp_head[i], tmp_scores[i]))
 		outFH.write("\n")
+	outFH.close()
+
+
 
 if __name__ == "__main__":
 	try:
