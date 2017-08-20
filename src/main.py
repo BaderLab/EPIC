@@ -48,7 +48,7 @@ def main():
 	parser.add_argument("output_dir", type = str,help="Directory containing the output files")
 	parser.add_argument("-o", "--output_prefix", type = str,help="Prefix name ofr all output Files", default="Out")
 
-	parser.add_argument("-m", "--mode", type = str,help="Run EPIC with experimental, functional, or bith evidences. Values: EXP, FA, BOTH, default: EXP  ",
+	parser.add_argument("-m", "--mode", type = str,help="Run EPIC with experimental, functional, or bith evidences. Values: EXP, FA, COMB, default: EXP  ",
 						default="EXP")
 	parser.add_argument("-M", "--classifier", type = str,help="Select which classifier to use. Values: RF SVM, default RF",
 						default="RF")
@@ -83,8 +83,10 @@ def main():
 	gs = ""
 	# Generate reference data set
  	if args.source == "TAXID":
+		print "Reading ppi file from %s" % args.reference
 		gs = utils.create_goldstandard(args.reference, foundprots)
 	elif args.source == "CLUST":
+		print "Reading cluster file from %s" % args.reference
 		gs = Goldstandard_from_cluster_File(args.reference, foundprots)
 	elif args.source == "PPI":
 		gs = Goldstandard_from_PPI_File(args.reference, foundprots)
@@ -95,19 +97,23 @@ def main():
 	output_dir = args.output_dir + os.sep + args.output_prefix
 
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, elution_datas, output_dir + ".scores.txt", num_cores=args.num_cores, cutoff= args.co_elution_cutoff)
-	scoreCalc.calculate_coelutionDatas(gs)
- 	#scoreCalc.readTable(output_dir + ".scores.txt", gs)
+	#scoreCalc.calculate_coelutionDatas(gs)
+ 	scoreCalc.readTable(output_dir + ".scores.txt", gs)
 	functionalData = ""
 
-	if args.mode != "exp":
+	if args.mode != "EXP":
 		functionalData = utils.get_FA_data(args.fun_anno_source, args.fun_anno_file)
 		print "Dimension of fun anno " + str(functionalData.scores.shape)
-
+		tmp_sc = copy.deepcopy(scoreCalc)
+		tmp_sc.add_fun_anno(functionalData)
+		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir)
+	else:
+		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir)
 
 	network = utils.make_predictions(scoreCalc, args.mode, clf, gs, fun_anno=functionalData)
 
 	# Predict protein interaction
-	outFH = open("%s.%s.pred.txt" % (output_dir), "w")
+	outFH = open("%s.pred.txt" % (output_dir), "w")
 
 	final_network = []
 	for PPI in network:
@@ -119,14 +125,14 @@ def main():
 	outFH.close()
 
 	# Predicting clusters
-	utils.predict_clusters("%s.%s.pred.txt" % (output_dir), "%s.%s.clust.txt" % (output_dir))
+	utils.predict_clusters("%s.pred.txt" % (output_dir), "%s.clust.txt" % (output_dir))
 
 
 	# Evaluating predicted clusters
 	pred_clusters = GS.Clusters(False)
-	pred_clusters.read_file("%s.%s.clust.txt" % (output_dir))
+	pred_clusters.read_file("%s.clust.txt" % (output_dir))
 	clust_scores, header = utils.clustering_evaluation(gs.complexes, pred_clusters, "", True)
-	outFH = open("%s.%s.eval.txt" % (output_dir), "w")
+	outFH = open("%s.eval.txt" % (output_dir), "w")
 	header = header.split("\t")
 	clust_scores = clust_scores.split("\t")
 	for i, head in enumerate(header):

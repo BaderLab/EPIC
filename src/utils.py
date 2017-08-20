@@ -93,6 +93,23 @@ def bench_by_PPI_clf(num_folds, scoreCalc, train_gold_complexes, outDir, clf, ve
 	return avergae_list
 
 
+
+def cv_bench_clf(scoreCalc, clf, gs, outDir, verbose=False, format="pdf"):
+	_, data, targets = scoreCalc.toSklearnData(gs)
+	precision, recall, fmeasure, auc_pr, auc_roc, curve_pr, curve_roc = clf.cv_eval(data, targets)
+	plotCurves([("", curve_roc)], outDir + ".roc." + format, "False Positive rate", "True Positive Rate")
+	recall_vals, precision_vals, threshold = curve_pr
+	plotCurves([("", (precision_vals, recall_vals))], outDir + ".pr." + format, "Recall", "Precision")
+
+	threshold = np.append(threshold, 1)
+	plotCurves([("Precision", (precision_vals, threshold)), ("Recall", (recall_vals, threshold))], outDir + ".cutoff." + format, "Cutoff", "Evaluation metric score")
+	if verbose:
+		rownames = ["Precision", "Recall", "F-Measure", "AUC PR", "AUC ROC"]
+		val_scores = [precision, recall, fmeasure, auc_pr, auc_roc]
+		for i in range(len(rownames)):
+			print rownames[i]
+			print val_scores[i]
+
 def bench_clf(scoreCalc, train, eval, clf, outDir, verbose=False, format = "pdf"):
 	_, data_train, targets_train = scoreCalc.toSklearnData(train)
 	_, data_eval, targets_eval = scoreCalc.toSklearnData(eval)
@@ -231,6 +248,8 @@ def get_FA_data(anno_source, file=""):
 	return functionalData
 
 def make_predictions(score_calc, mode, clf, gs, fun_anno="", verbose = False):
+	mode = mode.upper()
+
 	def get_edges_from_network(network):
 		out = {}
 		for edge in network:
@@ -240,10 +259,10 @@ def make_predictions(score_calc, mode, clf, gs, fun_anno="", verbose = False):
 
 	networks = []
 	# predicts using experiment only
-	if mode == "exp" or mode == "BR": networks.append(predictInteractions(score_calc, clf, gs, verbose))
+	if mode == "EXP" or mode == "BR": networks.append(predictInteractions(score_calc, clf, gs, verbose))
 
 	#predicts using fun_anno only
-	if mode == "fa"or mode == "BR":
+	if mode == "FA"or mode == "BR":
 		if fun_anno=="":
 			# TODO make illigal argument error
 			print "if using only functional annotation for prediction functional annotation (fun_anno param != "") must not be empty"
@@ -251,7 +270,7 @@ def make_predictions(score_calc, mode, clf, gs, fun_anno="", verbose = False):
 		networks.append(predictInteractions(fun_anno, clf, gs, verbose))
 
 	#predict using both functional annotation and exp
-	if mode == "comb" or mode == "BR":
+	if mode == "COMB" or mode == "BR":
 		tmp_score_calc = copy.deepcopy(score_calc)
 		print tmp_score_calc.scores.shape
 		tmp_score_calc.add_fun_anno(fun_anno)

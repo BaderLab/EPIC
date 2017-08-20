@@ -1047,6 +1047,9 @@ class CLF_Wrapper:
 	def eval(self, data, targets):
 		probs = self.predict_proba(data)
 		preds = self.predict(data)
+		return self.get_metrics(probs, preds, targets)
+
+	def get_metrics(self, probs, preds, targets):
 		precision = metrics.precision_score(targets, preds, average=None)[1]
 		recall = metrics.recall_score(targets, preds, average=None)[1]
 		fmeasure = metrics.f1_score(targets, preds, average=None)[1]
@@ -1056,12 +1059,16 @@ class CLF_Wrapper:
 		curve_roc = roc_curve(targets, probs)
 		return [precision, recall, fmeasure, auc_pr, auc_roc, curve_pr, curve_roc]
 
-	# a function added by Lucas HU for n_fold corss validation
-	# a trial verison
-	def eval_cross_valdation(self, data):
-		probs = self.predict_proba(data)
-		preds = self.predict(data)
-		return probs, preds
+	def cv_eval(self, data, targets, folds= 10):
+		skf = StratifiedKFold(folds)
+		probs = []
+		preds = []
+		for train, test in skf.split(data, targets):  # Depricated code StratifiedKFold(self.targets, self.folds):
+			probas = self.clf.fit(data[train], targets[train]).predict_proba(data[test])
+			probs.extend(probas[:, 1])  # make sure that 1 is positive class in binarizied class vector
+			preds.extend(targets[test])
+		return self.get_metrics(probs, preds, targets)
+
 
 	# @author: Florian Goebels
 	# @Param:
