@@ -8,8 +8,10 @@ import sys
 import copy
 import os
 import numpy as np
+import argparse
 
-
+import warnings
+warnings.filterwarnings('ignore')
 
 def Goldstandard_from_cluster_File(gsF, foundprots=""):
 	clusters = GS.Clusters(need_to_be_mapped=False)
@@ -20,118 +22,117 @@ def Goldstandard_from_cluster_File(gsF, foundprots=""):
 	gs.make_pos_neg_ppis()
 	return gs
 
-def main():
-	feature_combination, input_dir, use_rf, num_cores, mode, anno_source, anno_F, target_taxid, refF, output_dir = sys.argv[1:]
 
-	print (feature_combination + "\t" + mode + "\t" + anno_source)
+def Goldstandard_from_PPI_File(gsF, foundprots=""):
+	out = GS.Goldstandard_from_Complexes("gs")
+	gsFH = open(gsF)
+	for line in gsFH:
+		line = line.rstrip()
+		ida, idb, class_label = line.split("\t")[0:3]
+		if foundprots !="" and (ida not in foundprots or idb not in foundprots): continue
+		edge = "\t".join(sorted([ida, idb]))
+		if class_label == "positive":
+			out.positive.add(edge)
+		else:
+			out.negative.add(edge)
+	gsFH.close()
+	return out
+
+def main():
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-s", "--feature_selection", type = str, help="Select which features to use. This is an 8 position long array of 0 and 1, where each position determines which co-elution feature to use. Features sorted by position are: MI, Bayes, Euclidean, WCC, Jaccard, PCCN, PCC, and Apex.  Each default=11101001", default="11101001")
+	parser.add_argument("input_dir",  type = str, help="Directory containing the elution files for each experiment")
+	parser.add_argument("-S", "--source", type = str, help="Eitehr automatically download reference from GO, CORUM, and Uniprot, functional, or use suplied cluster/ppi file. Values: TAXID, CLUST, PPI, default: TAXID",
+						default="TAXID")
+	parser.add_argument("reference", type = str,help="Taxid, or file location of the used reference. When not using a taxid it is required to change the --source argument to either PPI or CLUST. default a taxonomic id")
+	parser.add_argument("output_dir", type = str,help="Directory containing the output files")
+	parser.add_argument("-o", "--output_prefix", type = str,help="Prefix name ofr all output Files", default="Out")
+
+	parser.add_argument("-m", "--mode", type = str,help="Run EPIC with experimental, functional, or bith evidences. Values: EXP, FA, BOTH, default: EXP  ",
+						default="EXP")
+	parser.add_argument("-M", "--classifier", type = str,help="Select which classifier to use. Values: RF SVM, default RF",
+						default="RF")
+	parser.add_argument("-n", "--num_cores", type = int,help="Number of cores to be used, default 1",
+						default=1)
+	parser.add_argument("-f", "--fun_anno_source", type = str,help="Where to get functional annotaiton from. Values: STRING or GM or File, default= GM",
+						default="GM")
+	parser.add_argument("-F", "--fun_anno_file", type=str,
+						help="Path to File containing functional annotation. This flag needs to be set when using FILE as fun_anno_source.",
+						)
+	parser.add_argument("-c", "--co_elution_cutoff", type = float,help="Co-elution score cutoff. default 0.5",
+						default=0.5)
+	parser.add_argument("-C", "--classifier_cutoff", type = float,help="Classifier confidence valye cutoff. default = 0.68",
+						default=0.68)
+	args = parser.parse_args()
 
 	#Create feature combination
- 	if feature_combination == "00000000": sys.exit()
-	scores = [CS.MutualInformation(2), CS.Bayes(3), CS.Euclidiean(), CS.Wcc(), CS.Jaccard(), CS.Poisson(5), CS.Pearson(), CS.Apex()]
-	this_scores = []
-	for i, feature_selection in enumerate(feature_combination):
-		if feature_selection == "1": this_scores.append(scores[i])
+ 	if args.feature_selection == "00000000":
+		print "Select at least one feature"
+		sys.exit()
 
+	this_scores = utils.get_fs_comb(args.feature_selection)
 	print "\t".join([fs.name for fs in this_scores])
 
 	# Initialize CLF
- 	use_rf = use_rf == "True"
-	num_cores = int(num_cores)
-	clf = CS.CLF_Wrapper(num_cores, use_rf)
+ 	use_rf = args.classifier == "RF"
+	clf = CS.CLF_Wrapper(args.num_cores, use_rf)
 
 	# Load elution data
- 	foundprots, elution_datas = utils.load_data(input_dir, [])
+ 	foundprots, elution_datas = utils.load_data(args.input_dir, this_scores)
 
+	gs = ""
 	# Generate reference data set
- 	if refF == "none":
-		all_gs = utils.create_goldstandard(target_taxid, foundprots)
+ 	if args.source == "TAXID":
+		gs = utils.create_goldstandard(args.reference, foundprots)
+	elif args.source == "CLUST":
+		gs = Goldstandard_from_cluster_File(args.reference, foundprots)
+	elif args.source == "PPI":
+		gs = Goldstandard_from_PPI_File(args.reference, foundprots)
 	else:
-		all_gs = Goldstandard_from_cluster_File(refF, foundprots)
+		print "Invalid reference source please select TAXID, CLUST, or PPI"
+		sys.exit()
 
-	scoreCalc = CS.CalculateCoElutionScores(this_scores, elution_datas, output_dir + ".scores.txt", num_cores=num_cores, cutoff= 0.5)
-	#scoreCalc.calculate_coelutionDatas(all_gs)
- 	scoreCalc.readTable(output_dir + ".scores.txt", all_gs)
+	output_dir = args.output_dir + os.sep + args.output_prefix
+
+	scoreCalc = CS.CalculateCoElutionScores(this_scores, elution_datas, output_dir + ".scores.txt", num_cores=args.num_cores, cutoff= args.co_elution_cutoff)
+	scoreCalc.calculate_coelutionDatas(gs)
+ 	#scoreCalc.readTable(output_dir + ".scores.txt", gs)
 	functionalData = ""
-	if mode != "exp":
-		functionalData = utils.get_FA_data(anno_source, anno_F)
-		print functionalData.scores.shape
+
+	if args.mode != "exp":
+		functionalData = utils.get_FA_data(args.fun_anno_source, args.fun_anno_file)
+		print "Dimension of fun anno " + str(functionalData.scores.shape)
 
 
-	all_gs.rebalance()
-
-	#PPI and complexes level evaluation based on five_fold_cross_validation...
-	if mode == "comb":
-		tmp_score_calc = copy.deepcopy(scoreCalc)
-		tmp_score_calc.add_fun_anno(functionalData)
-
-	if mode == "exp":
-		tmp_score_calc = copy.deepcopy(scoreCalc)
-
-	if mode == "fa":
-		tmp_score_calc = functionalData
-
-	print tmp_score_calc.scores.shape
-
-
-	Complex_eval_list, complex_score_names = bench.n_fold_cross_validation(5, all_gs, tmp_score_calc, clf, output_dir, "False", local=False)
-	print complex_score_names
-	print Complex_eval_list
-	PPI_eval_list = utils.bench_by_PPI_clf(5, tmp_score_calc, all_gs, output_dir, clf, verbose=False)
-
-	outFH = open("%s.%s.PPI_complexes_5_fold_cross_validation_evaluation.txt" % (output_dir, mode + anno_source), "w")
-	outFH.write("%s\t%s\t%s" % ("Fmeasure", "aucPR", "aucROC"))
-	outFH.write("%s\t%s\t%s" % (PPI_eval_list[0], PPI_eval_list[1], PPI_eval_list[2]))
-	outFH.write("\n")
-	outFH.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
-		complex_score_names[0], complex_score_names[1], complex_score_names[2], complex_score_names[3],
-		complex_score_names[4],complex_score_names[5],complex_score_names[6],complex_score_names[7]))
-	outFH.write("\n")
-	outFH.write("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
-		Complex_eval_list[0], Complex_eval_list[1], Complex_eval_list[2], Complex_eval_list[3],
-		Complex_eval_list[4], Complex_eval_list[5], Complex_eval_list[6], Complex_eval_list[7]))
-	outFH.close()
-
-	sys.exit()
+	network = utils.make_predictions(scoreCalc, args.mode, clf, gs, fun_anno=functionalData)
 
 	# Predict protein interaction
+	outFH = open("%s.%s.pred.txt" % (output_dir), "w")
 
-	RF_cutoff = 0.7 # the cut off set for RF classifier...
-	network = utils.make_predictions(scoreCalc, mode, clf, all_gs, functionalData)
-	outFH = open("%s.%s.pred.txt" % (output_dir, mode + anno_source), "w")
-
-	# only need the PPIs have the score over certain cutoff
-	final_network  = list()
-
+	final_network = []
 	for PPI in network:
 		items = PPI.split("\t")
-		if float(items[2]) >= RF_cutoff:
+		if float(items[2]) >= args.classifier_cutoff:
 			final_network.append(PPI)
 
 	print >> outFH, "\n".join(final_network)
-
-	#print final_network
 	outFH.close()
 
 	# Predicting clusters
-#	utils.predict_clusters("%s.%s.pred.txt" % (output_dir, mode + anno_source), "%s.%s.clust.txt" % (output_dir, mode + anno_source))
+	utils.predict_clusters("%s.%s.pred.txt" % (output_dir), "%s.%s.clust.txt" % (output_dir))
+
 
 	# Evaluating predicted clusters
 	pred_clusters = GS.Clusters(False)
-	pred_clusters.read_file("%s.%s.clust.txt" % (output_dir, mode + anno_source))
-	clusterEvaluationScores = utils.clustering_evaluation(all_gs.complexes, pred_clusters, "", True)
-	outFH = open("%s.%s.evaluation.txt" % (output_dir, mode + anno_source), "w")
-
-	head = clusterEvaluationScores[1]
-	cluster_scores = clusterEvaluationScores[0]
-
-	tmp_head = head.split("\t")
-	tmp_scores = cluster_scores.split("\t")
-	for i in range(len(tmp_head)):
-		outFH.write("%s\t%s" % (tmp_head[i], tmp_scores[i]))
-		outFH.write("\n")
+	pred_clusters.read_file("%s.%s.clust.txt" % (output_dir))
+	clust_scores, header = utils.clustering_evaluation(gs.complexes, pred_clusters, "", True)
+	outFH = open("%s.%s.eval.txt" % (output_dir), "w")
+	header = header.split("\t")
+	clust_scores = clust_scores.split("\t")
+	for i, head in enumerate(header):
+		print "%s\t%s" % (head, clust_scores[i])
+		print >> outFH, "%s\t%s" % (head, clust_scores[i])
 	outFH.close()
-
-
 
 if __name__ == "__main__":
 	try:

@@ -9,6 +9,15 @@ import GoldStandard as GS
 import copy
 import json
 
+
+def get_fs_comb(comb_string):
+	#Create feature combination
+	scores = [CS.MutualInformation(2), CS.Bayes(3), CS.Euclidiean(), CS.Wcc(), CS.Jaccard(), CS.Poisson(5), CS.Pearson(), CS.Apex()]
+	this_scores = []
+	for i, feature_selection in enumerate(comb_string):
+		if feature_selection == "1": this_scores.append(scores[i])
+	return this_scores
+
 # a new function added by Lucas HU for benchmark on PPIs level
 # this is used for two-levels optimization steps
 # a trial version
@@ -209,7 +218,9 @@ def get_FA_data(anno_source, file=""):
 		functionalData = string.getScoreCalc()
 
 	elif anno_source == "FILE":
-
+		if file == "":
+			print "When using FILE tag please suppy path to file containing functional annotation using -F file+path"
+			sys.exit()
 		# the supplied functional evidence data needs to have the correct header row...
 		externaldata = CS.ExternalEvidence(file)
 		#externaldata.readFile()
