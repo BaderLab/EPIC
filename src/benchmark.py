@@ -250,13 +250,13 @@ def exp_comb(args):
 
 	#	head, scores = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, output_dir, valprots=this_foundprots)
 		out_head = head
-		all_scores.append("%i\t%i\t%s\t%i\t%s" % (i,j,search_engine, len(this_foundprots), scores))
+		all_scores.append("%s\t%i\t%i\t%s\t%i\t%s" % (FS, i,j,search_engine, len(this_foundprots), scores))
 		print head
 		print scores
 
 
 	outFH = open(output_dir + ".%i_%i.all.eval.txt" % (i, j), "w")
-	print >> outFH, "Num_iex\tNum_beads\tSearch_engine\tNum_Prots\t%s" % out_head
+	print >> outFH, "FS\tNum_iex\tNum_beads\tSearch_engine\tNum_Prots\t%s" % out_head
 	for score in all_scores:
 		print >> outFH, "%s" % (score)
 	outFH.close()
