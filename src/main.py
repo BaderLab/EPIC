@@ -100,6 +100,12 @@ def main():
 	#scoreCalc.calculate_coelutionDatas(gs)
  	scoreCalc.readTable(output_dir + ".scores.txt", gs)
 	functionalData = ""
+	gs.positive = set(gs.positive & set(scoreCalc.ppiToIndex.keys()))
+	gs.negative = set(gs.negative & set(scoreCalc.ppiToIndex.keys()))
+	gs.rebalance()
+
+	print len(gs.positive)
+	print len(gs.negative)
 
 	if args.mode != "EXP":
 		functionalData = utils.get_FA_data(args.fun_anno_source, args.fun_anno_file)
