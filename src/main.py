@@ -113,9 +113,9 @@ def main():
 		tmp_sc = copy.deepcopy(scoreCalc)
 		tmp_sc.add_fun_anno(functionalData)
 		print "Start benchmarking"
-		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir)
+		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir, format="png")
 	else:
-		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir)
+		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir, format="png")
 
 	network = utils.make_predictions(scoreCalc, args.mode, clf, gs, fun_anno=functionalData)
 
@@ -138,7 +138,7 @@ def main():
 	# Evaluating predicted clusters
 	pred_clusters = GS.Clusters(False)
 	pred_clusters.read_file("%s.clust.txt" % (output_dir))
-	clust_scores, header = utils.clustering_evaluation(gs.complexes, pred_clusters, "", True)
+	clust_scores, header = utils.clustering_evaluation(gs.complexes, pred_clusters, "", False)
 	outFH = open("%s.eval.txt" % (output_dir), "w")
 	header = header.split("\t")
 	clust_scores = clust_scores.split("\t")
