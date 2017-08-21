@@ -112,6 +112,7 @@ def main():
 		print "Dimension of fun anno " + str(functionalData.scores.shape)
 		tmp_sc = copy.deepcopy(scoreCalc)
 		tmp_sc.add_fun_anno(functionalData)
+		print "Start benchmarking"
 		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir)
 	else:
 		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir)

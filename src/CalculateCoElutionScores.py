@@ -1059,13 +1059,17 @@ class CLF_Wrapper:
 		curve_roc = roc_curve(targets, probs)
 		return [precision, recall, fmeasure, auc_pr, auc_roc, curve_pr, curve_roc]
 
-	def cv_eval(self, data, targets, folds= 10):
+	def cv_eval(self, data, targets, folds= 5):
 		skf = StratifiedKFold(folds)
 		probs = []
 		preds = []
-		for train, test in skf.split(data, targets):  # Depricated code StratifiedKFold(self.targets, self.folds):
-			probas = self.clf.fit(data[train], targets[train]).predict_proba(data[test])
-			probs.extend(probas[:, 1])  # make sure that 1 is positive class in binarizied class vector
+		i = 1
+		for train, test in skf.split(data, targets):
+			print "Processing fold %i" % i
+			i += 1
+			self.fit(data[train], targets[train])
+			probas = self.predict_proba(data[test])
+			probs.extend(probas)
 			preds.extend(targets[test])
 		return self.get_metrics(probs, preds, targets)
 
