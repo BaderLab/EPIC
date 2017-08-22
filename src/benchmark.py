@@ -71,7 +71,7 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir, overlap,
 		tmp = []
 		for ppi in network:
 			prota, protb, score =  ppi.split("\t")
-			if float(score)>0.68: # this is random forest confidence cut off
+			if float(score)>0.5: # this is random forest confidence cut off
 				tmp.append(ppi)
 		network = tmp
 
@@ -573,9 +573,6 @@ def run_epic_with_feature_combinations(feature_combination, ref_GS, scoreCalc, c
 	print scoreCalc.scores.shape
 	if faF != "":
 		fa = utils.get_FA_data("FILE", faF)
-		print "I am here"
-		print type(fa)
-		#feature_selector.add_fun_anno(fa)
 		feature_comb.add_fun_anno(fa)
 	return n_fold_cross_validation(5, ref_GS, feature_comb, clf, output_dir, overlap, local)
 
@@ -594,7 +591,7 @@ def calc_feature_combination(args):
 	clf_name = "SVM"
 	if use_rf: clf_name = "RF"
 
-	clf = CS.CLF_Wrapper(num_cores, use_rf) #OPTIONS: # CS.SAE_wrapper() #CS.MLP_wrapper() #CS.CLF_Wrapper(num_cores, use_rf)
+	clf = CS.CLF_Wrapper(num_cores, use_rf)
 
 #	foundprots, elution_datas = utils.load_data(input_dir, [])
 	ref_gs = Goldstandard_from_cluster_File(ref_complexes)
