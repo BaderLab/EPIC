@@ -12,26 +12,26 @@ import random as rnd
 
 # a function added by lucas, to use n_fold cross_validation to help select features.
 # a trial version though.
-def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir, overlap, local, fun_anno):
+def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir, overlap, local):
 	out_scores = []
 	out_head = []
 
-	tmp_train_eval_container = all_gs.n_fols_split(n_fold, overlap)  #(all_gs.split_into_n_fold2(n_fold, set(scoreCalc.ppiToIndex.keys()))["turpleKey"])
-#	tmp_train_eval_container = (all_gs.split_into_n_fold2(n_fold, set(scoreCalc.ppiToIndex.keys()))["turpleKey"])
+	train_eval_container = all_gs.n_fols_split(n_fold, overlap)
 
 	# create a matrix to store the computed complexes vealuation metrics
-	complex_eval_score_vector = np.zeros((n_fold,8))
+	complex_eval_score_vector = np.zeros((n_fold,10))
 	val_ppis = set(scoreCalc.ppiToIndex.keys())
 
 	print "Number of ppis with e-score>0.5: %i" % len(val_ppis)
 	#the global cluster will contain all clusters predcited from n-fold-corss validation
 	for index in range(n_fold):
 		print "processinng fold " + str(index + 1)
-		train, eval = tmp_train_eval_container[index]
+		train, eval = train_eval_container[index]
 
 		train.positive = train.positive & val_ppis
 		train.negative = train.negative & val_ppis
 		train.rebalance()
+
 		print "All comp:%i" % len(all_gs.complexes.complexes)
 		print "Train comp:%i" % len(train.complexes.complexes)
 		print "Eval comp:%i" % len(eval.complexes.complexes)
@@ -48,11 +48,6 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir, overlap,
 
 		netF = "%s.fold_%s.pred.txt" % (output_dir, index)
 		clustF = "%s.fold_%s.clust.txt" % (output_dir, index)
-
-		print scoreCalc.getShape()
-		if fun_anno!="":
-			scoreCalc.add_fun_anno(fun_anno)
-		print scoreCalc.getShape()
 
 		if local :
 		# Evaluate classifier
@@ -97,12 +92,19 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir, overlap,
 		out_scores.append("%i\t%i\t%s" % (len(network), len(pred_clusters.get_complexes()), fold_scores))
 		out_head.append("Fold %i Num_pred_PPIS\tFold %i NUM_pred_CLUST\t%s" % ((index+1), (index+1), fold_head))
 
-		complex_eval_score_vector[index, :] = np.array(fold_scores.split("\t"))
+		tmp_scores = [len(network), len(pred_clusters.get_complexes())]
+		tmp_scores.extend(map(float, fold_scores.split("\t")))
+		tmp_scores = np.array(tmp_scores)
+		complex_eval_score_vector[index, :] = tmp_scores
 
 	averaged_complex_eval_metrics_vector = np.mean(complex_eval_score_vector, axis = 0)
 
-	#return "\t".join(out_scores), "\t".join(out_head)
-	return averaged_complex_eval_metrics_vector, fold_head.split("\t")
+	out_scores.append("\t".join(map(str, averaged_complex_eval_metrics_vector)))
+	mean_head = re.sub("Fold \d", "Mean", "Fold %i Num_pred_PPIS\tFold %i NUM_pred_CLUST\t%s" % ((index+1), (index+1), fold_head))
+
+	out_head.append(mean_head)
+	return "\t".join(out_scores), "\t".join(out_head)
+	#return averaged_complex_eval_metrics_vector, fold_head.split("\t")
 
 def cut(args):
 	fc, scoreF, outF = args
@@ -222,10 +224,9 @@ def exp_comb(args):
 	scoreCalc.readTable(scoreF, ref_gs)
 
 	# the supplied functional evidence data needs to have the correct header row...
-	externaldata = CS.ExternalEvidence(fun_anno_F)
 	functionalData = ""
-
-	if mode == "comb": functionalData = externaldata.getScoreCalc()
+	if mode == "comb":
+		functionalData = utils.get_FA_data("FILE", fun_anno_F)
 
 	if i == 0 and j == 0: sys.exit()
 
@@ -246,7 +247,9 @@ def exp_comb(args):
 		print len(this_foundprots)
 
 		feature_comb = feature_selector([fs.name for fs in this_scores], scoreCalc, valprots=this_foundprots, elution_file_names=this_eprofiles_fnames)
-		scores, head =  n_fold_cross_validation(5, ref_gs, feature_comb, clf, "%s_%i_%i" % (output_dir, i, j ), overlap = False, local = False, fun_anno=functionalData)
+		if mode == "comb":
+			feature_comb.add_fun_anno(functionalData)
+		scores, head =  n_fold_cross_validation(5, ref_gs, feature_comb, clf, "%s_%i_%i" % (output_dir, i, j ), overlap = False, local = False)
 
 	#	head, scores = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, output_dir, valprots=this_foundprots)
 		out_head = head
@@ -469,11 +472,6 @@ class feature_selector:
 	def get_cols(self, header, feature_names, elution_file_names= []):
 		self.to_keep_header = [0, 1]
 		self.to_keep_score = []
-
-
-	#	fa_names = set(["evidence%i" % i for i in range(1,13)])
-	#	all_names = set(feature_names) | set (fa_names)
-
 		for i in range(2, len(header)):
 			colname = header[i]
 			file_name, scorename = colname.rsplit(".",1)
@@ -548,36 +546,8 @@ def write_reference(args):
 	print >> outFH, out
 	outFH.close()
 
-def bench_Bayes(args):
-	input_dir, scoreF, ref_compF, output_dir = args
-	out_head, out_scores = "", []
-	combinations = [ [CS.Bayes(1)]
-					,[CS.Bayes(2)]
-					,[CS.Bayes(3)]]
-
-	for bayes_comb in combinations:
-		tmp_head, tmp_scores = run_epic_with_feature_combinations(bayes_comb, input_dir, 4, True, scoreF, output_dir ,
-										   no_overlap_in_training=False, ref_complexes=ref_compF)
-		out_head = tmp_head
-		out_scores.append(tmp_scores)
-
-	outFH = open(output_dir + "all.eval.txt", "w")
-	print >> outFH, "%s\n%s" % (out_head, "\n".join(out_scores))
-	outFH.close()
-
-	print "%s\n%s" % (out_head, "\n".join(out_scores))
-
-def run_epic_with_feature_combinations(feature_combination, ref_GS, scoreCalc, clf, overlap, local, output_dir, faF="", valprots = []):
-	feature_comb = feature_selector([fs.name for fs in feature_combination], scoreCalc, valprots)
-	print feature_comb.scoreCalc.scores.shape
-	print scoreCalc.scores.shape
-	if faF != "":
-		fa = utils.get_FA_data("FILE", faF)
-		feature_comb.add_fun_anno(fa)
-	return n_fold_cross_validation(5, ref_GS, feature_comb, clf, output_dir, overlap, local)
-
 def calc_feature_combination(args):
-	feature_combination, se, input_dir, use_rf, overlap, local, cutoff, num_cores, scoreF, faF, ref_complexes, output_dir = args
+	feature_combination, se, input_dir, use_rf, overlap, local, cutoff, num_cores, scoreF, mode, faF, ref_complexes, output_dir = args
 	#Create feature combination
 	cutoff = float(cutoff)/100
 
@@ -599,10 +569,17 @@ def calc_feature_combination(args):
 
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, "", scoreF, num_cores=num_cores, cutoff=cutoff)
 	scoreCalc.readTable(scoreF, ref_gs)
+	feature_comb = feature_selector([fs.name for fs in this_scores], scoreCalc)
+	print feature_comb.scoreCalc.scores.shape
+	print scoreCalc.scores.shape
+	if mode == "comb":
+		fa = utils.get_FA_data("FILE", faF)
+		feature_comb.add_fun_anno(fa)
 
-	scores, head = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, overlap, local, output_dir, faF)
+	print feature_comb.scoreCalc.scores.shape
 
-#	scores, head = n_fold_cross_validation(10, ref_gs, scoreCalc, clf, output_dir)
+	scores, head = n_fold_cross_validation(5, ref_gs, feature_comb, clf, output_dir, overlap, local)
+
 
 	outFH = open(output_dir + ".eval.txt" , "w")
 	#se = input_dir.split(os.sep)[-2]
@@ -747,9 +724,6 @@ def main():
 
 	elif mode == "-make_ref":
 		write_reference(sys.argv[2:])
-
-	elif mode == "-bench_bayes":
-		bench_Bayes(sys.argv[2:])
 
 	elif mode == "-cor_eval":
 		EPIC_cor(sys.argv[2:])
