@@ -61,6 +61,14 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir, overlap,
 
 		if len(network) == 0:
 			print "No edges were predicted"
+			tmp_scores = [0]*10
+			prefix = "Fold %i " % (index+1)
+			tmp_head = "\t".join(["%s%s" % (prefix, h) for h in
+							  ["Num_pred_PPIS", "NUM_pred_CLUST", "mmr", "overlapp", "simcoe", "mean_simcoe_overlap", "sensetivity", "ppv", "accuracy",
+							   "sep"]])
+			out_head.append(tmp_head)
+			out_scores.append("\t".join(map(str,tmp_scores)))
+			complex_eval_score_vector[index, :] = tmp_scores
 			continue
 
 		tmp = []
@@ -563,7 +571,6 @@ def calc_feature_combination(args):
 
 	clf = CS.CLF_Wrapper(num_cores, use_rf)
 
-#	foundprots, elution_datas = utils.load_data(input_dir, [])
 	ref_gs = Goldstandard_from_cluster_File(ref_complexes)
 
 
@@ -582,7 +589,6 @@ def calc_feature_combination(args):
 
 
 	outFH = open(output_dir + ".eval.txt" , "w")
-	#se = input_dir.split(os.sep)[-2]
 	print "FS\tSE\tCLF\t" + head
 	print "%s\t%s\t%s\t" % (feature_combination, se, clf_name) + scores
 
@@ -650,6 +656,9 @@ def orth_map(args):
 	outFH = open(outF,"w")
 	outFH.write(clust.to_string())
 	outFH.close()
+
+
+
 
 def calc_scores(args):
 	topred = []

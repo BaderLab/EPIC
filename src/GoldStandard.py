@@ -812,6 +812,11 @@ class Inparanoid():
 			mapped_edges.add(tuple(edge))
 		return mapped_edges
 
+	def mapEdge(self, edge):
+		protA, protB = edge.split("\t")
+		if protA not in self.orthmap or protB not in self.orthmap: return ""
+		return "\t".join(sorted([self.orthmap[protA], self.orthmap[protB]]))
+
 	def mapComplexes(self, clusters):
 		todel = set([])
 		for clust in clusters.complexes:

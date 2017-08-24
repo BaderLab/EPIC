@@ -97,8 +97,8 @@ def main():
 	output_dir = args.output_dir + os.sep + args.output_prefix
 
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, elution_datas, output_dir + ".scores.txt", num_cores=args.num_cores, cutoff= args.co_elution_cutoff)
-	#scoreCalc.calculate_coelutionDatas(gs)
- 	scoreCalc.readTable(output_dir + ".scores.txt", gs)
+	scoreCalc.calculate_coelutionDatas(gs)
+ 	#scoreCalc.readTable(output_dir + ".scores.txt", gs)
 	functionalData = ""
 	gs.positive = set(gs.positive & set(scoreCalc.ppiToIndex.keys()))
 	gs.negative = set(gs.negative & set(scoreCalc.ppiToIndex.keys()))

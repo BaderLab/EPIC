@@ -118,7 +118,7 @@ class ElutionData():
 	# this methods load elution data stored as a flat file and returns the read in matrix and an index pointing each protein to it's rwo index
 	# @Param:
 	#		elutionProfileF elution data as flat file, tab separated
-	def loadElutionData(self, elutionProfileF, frac_count = 2):
+	def loadElutionData(self, elutionProfileF, frac_count = 2, max_count_cutoff=2):
 		elutionProfileFH = open(elutionProfileF)
 		elutionProfileFH.readline()
 		i = 0
@@ -130,7 +130,7 @@ class ElutionData():
 			line = line.split("\t")
 			protID = line[0]
 			counts = map(float, line[1:])
-			if len(list(set(np.where(np.array(counts) > 0.0)[0]))) >= frac_count:
+			if len(list(set(np.where(np.array(counts) > 0.0)[0]))) >= frac_count and max(counts)>=max_count_cutoff:
 				elutionMat.append(counts)
 				prot2Index[protID] = i
 				i += 1
@@ -154,7 +154,6 @@ class ElutionData():
 		self.elutionMat = np.array(newMat)
 		self.prot2Index = newprot2Index
 		self.normedElutionMat = normalize_fracs(self.elutionMat)
-
 		
 
 	# @author: Florian Goebels
