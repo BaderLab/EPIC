@@ -108,9 +108,9 @@ class ElutionData():
 	#		self.elutionMat numpy matric cnsisting of only the counts 
 	#		self.normedElutionMat numpy matric containing normalized spectral counts 
 	#		self.prot2Index dictonary mapping protein to it's respective row index in self.elutionMat and self.normedElutionMat
-	def __init__(self, elutionProfileF, frac_count=2):
+	def __init__(self, elutionProfileF, frac_count=2, max_frac_count=1):
 		self.name = os.path.split(elutionProfileF)[-1]
-		self.elutionMat, self.prot2Index  = self.loadElutionData(elutionProfileF, frac_count=frac_count)
+		self.elutionMat, self.prot2Index  = self.loadElutionData(elutionProfileF, frac_count=frac_count, max_count_cutoff=max_frac_count)
 		self.normedElutionMat = normalize_fracs(self.elutionMat)
 		self.elutionMat = np.array(self.elutionMat)
 
@@ -118,7 +118,7 @@ class ElutionData():
 	# this methods load elution data stored as a flat file and returns the read in matrix and an index pointing each protein to it's rwo index
 	# @Param:
 	#		elutionProfileF elution data as flat file, tab separated
-	def loadElutionData(self, elutionProfileF, frac_count = 2, max_count_cutoff=2):
+	def loadElutionData(self, elutionProfileF, frac_count = 2, max_count_cutoff=1):
 		elutionProfileFH = open(elutionProfileF)
 		elutionProfileFH.readline()
 		i = 0

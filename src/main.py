@@ -63,6 +63,8 @@ def main():
 						default=0.5)
 	parser.add_argument("-C", "--classifier_cutoff", type = float,help="Classifier confidence valye cutoff. default = 0.68",
 						default=0.68)
+	parser.add_argument("-e", "--elution_max_count", type = int,help="Removies protein that have a maximal peptide count less than the given value. default = 1",
+						default=1)
 	args = parser.parse_args()
 
 	#Create feature combination
@@ -78,7 +80,7 @@ def main():
 	clf = CS.CLF_Wrapper(args.num_cores, use_rf)
 
 	# Load elution data
- 	foundprots, elution_datas = utils.load_data(args.input_dir, this_scores)
+ 	foundprots, elution_datas = utils.load_data(args.input_dir, this_scores, max_frac_count=args.elution_max_count)
 
 	gs = ""
 	# Generate reference data set
