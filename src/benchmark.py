@@ -555,7 +555,7 @@ def write_reference(args):
 	outFH.close()
 
 def calc_feature_combination(args):
-	feature_combination, se, input_dir, use_rf, overlap, local, cutoff, num_cores, scoreF, mode, faF, ref_complexes, output_dir = args
+	feature_combination, se, input_dir, use_rf, overlap, local, cutoff, num_cores, scoreF, mode, anno ,faF, ref_complexes, output_dir = args
 	#Create feature combination
 	cutoff = float(cutoff)/100
 
@@ -580,7 +580,13 @@ def calc_feature_combination(args):
 	print feature_comb.scoreCalc.scores.shape
 	print scoreCalc.scores.shape
 	if mode == "comb":
-		fa = utils.get_FA_data("FILE", faF)
+		if anno == "FILE":
+			fa = utils.get_FA_data("FILE", faF)
+		if anno == "GM":
+			fa = utils.get_FA_data("GM", faF)
+		if anno == "STRING":
+			fa = utils.get_FA_data("STRING", faF)
+			
 		feature_comb.add_fun_anno(fa)
 
 	print feature_comb.scoreCalc.scores.shape
