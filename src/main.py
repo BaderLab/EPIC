@@ -46,9 +46,9 @@ def main():
 						default="TAXID")
 	parser.add_argument("reference", type = str,help="Taxid, or file location of the used reference. When not using a taxid it is required to change the --source argument to either PPI or CLUST. default a taxonomic id")
 	parser.add_argument("output_dir", type = str,help="Directory containing the output files")
-	parser.add_argument("-o", "--output_prefix", type = str,help="Prefix name ofr all output Files", default="Out")
+	parser.add_argument("-o", "--output_prefix", type = str,help="Prefix name for all output Files", default="Out")
 
-	parser.add_argument("-m", "--mode", type = str,help="Run EPIC with experimental, functional, or bith evidences. Values: EXP, FA, COMB, default: EXP  ",
+	parser.add_argument("-m", "--mode", type = str,help="Run EPIC with experimental, functional, or both evidences. Values: EXP, FA, COMB, default: EXP  ",
 						default="EXP")
 	parser.add_argument("-M", "--classifier", type = str,help="Select which classifier to use. Values: RF SVM, default RF",
 						default="RF")

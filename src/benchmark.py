@@ -577,19 +577,22 @@ def calc_feature_combination(args):
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, "", scoreF, num_cores=num_cores, cutoff=cutoff)
 	scoreCalc.readTable(scoreF, ref_gs)
 	feature_comb = feature_selector([fs.name for fs in this_scores], scoreCalc)
+
+	print "I am debugging here"
+	print type(feature_comb)
+
 	print feature_comb.scoreCalc.scores.shape
 	print scoreCalc.scores.shape
 	if mode == "comb":
-		if anno == "FILE":
-			fa = utils.get_FA_data("FILE", faF)
-		if anno == "GM":
-			fa = utils.get_FA_data("GM", faF)
-		if anno == "STRING":
-			fa = utils.get_FA_data("STRING", faF)
-			
+		fa = utils.get_FA_data(anno, faF)
 		feature_comb.add_fun_anno(fa)
+	elif mode == "fa":
+		feature_comb = utils.get_FA_data(anno, faF)
+		print type(feature_comb)
 
-	print feature_comb.scoreCalc.scores.shape
+	elif mode != "exp":
+		print "not support this mode"
+		sys.exit()
 
 	scores, head = n_fold_cross_validation(5, ref_gs, feature_comb, clf, output_dir, overlap, local)
 
