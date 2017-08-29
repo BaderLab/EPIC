@@ -555,7 +555,7 @@ def write_reference(args):
 	outFH.close()
 
 def calc_feature_combination(args):
-	feature_combination, se, input_dir, use_rf, overlap, local, cutoff, num_cores, scoreF, mode, faF, ref_complexes, output_dir = args
+	feature_combination, se, input_dir, use_rf, overlap, local, cutoff, num_cores, scoreF, mode, anno ,faF, ref_complexes, output_dir = args
 	#Create feature combination
 	cutoff = float(cutoff)/100
 
@@ -577,13 +577,22 @@ def calc_feature_combination(args):
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, "", scoreF, num_cores=num_cores, cutoff=cutoff)
 	scoreCalc.readTable(scoreF, ref_gs)
 	feature_comb = feature_selector([fs.name for fs in this_scores], scoreCalc)
+
+	print "I am debugging here"
+	print type(feature_comb)
+
 	print feature_comb.scoreCalc.scores.shape
 	print scoreCalc.scores.shape
 	if mode == "comb":
-		fa = utils.get_FA_data("FILE", faF)
+		fa = utils.get_FA_data(anno, faF)
 		feature_comb.add_fun_anno(fa)
+	elif mode == "fa":
+		feature_comb = utils.get_FA_data(anno, faF)
+		print type(feature_comb)
 
-	print feature_comb.scoreCalc.scores.shape
+	elif mode != "exp":
+		print "not support this mode"
+		sys.exit()
 
 	scores, head = n_fold_cross_validation(5, ref_gs, feature_comb, clf, output_dir, overlap, local)
 
