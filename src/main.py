@@ -61,10 +61,13 @@ def main():
 						)
 	parser.add_argument("-c", "--co_elution_cutoff", type = float,help="Co-elution score cutoff. default 0.5",
 						default=0.5)
-	parser.add_argument("-C", "--classifier_cutoff", type = float,help="Classifier confidence valye cutoff. default = 0.68",
-						default=0.68)
+	parser.add_argument("-C", "--classifier_cutoff", type = float,help="Classifier confidence valye cutoff. default = 0.5",
+						default=0.5)
 	parser.add_argument("-e", "--elution_max_count", type = int,help="Removies protein that have a maximal peptide count less than the given value. default = 1",
 						default=1)
+	parser.add_argument("-p", "--precalcualted_score_file", type = str,help="Path to precalulated scorefile to read scores from for faster rerunning of EPIC. default = None",
+						default="NONE")
+
 	args = parser.parse_args()
 
 	#Create feature combination
@@ -80,12 +83,12 @@ def main():
 	clf = CS.CLF_Wrapper(args.num_cores, use_rf)
 
 	# Load elution data
- 	foundprots, elution_datas = utils.load_data(args.input_dir, this_scores, max_frac_count=args.elution_max_count)
+ 	foundprots, elution_datas = utils.load_data(args.input_dir, this_scores)
 
 	gs = ""
 	# Generate reference data set
  	if args.source == "TAXID":
-		print "Reading ppi file from %s" % args.reference
+		print "Geting PPIs from CORUM,GO,INTACT %s" % args.reference
 		gs = utils.create_goldstandard(args.reference, foundprots)
 	elif args.source == "CLUST":
 		print "Reading cluster file from %s" % args.reference
@@ -99,8 +102,14 @@ def main():
 	output_dir = args.output_dir + os.sep + args.output_prefix
 
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, elution_datas, output_dir + ".scores.txt", num_cores=args.num_cores, cutoff= args.co_elution_cutoff)
-	scoreCalc.calculate_coelutionDatas(gs)
- 	#scoreCalc.readTable(output_dir + ".scores.txt", gs)
+	if args.precalcualted_score_file == "NONE":
+		scoreCalc.calculate_coelutionDatas(gs)
+	else:
+ 		scoreCalc.readTable(args.precalcualted_score_file, gs)
+
+	print scoreCalc.scores.shape
+	sys.exit()
+
 	functionalData = ""
 	gs.positive = set(gs.positive & set(scoreCalc.ppiToIndex.keys()))
 	gs.negative = set(gs.negative & set(scoreCalc.ppiToIndex.keys()))
