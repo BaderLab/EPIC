@@ -42,9 +42,9 @@ def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-s", "--feature_selection", type = str, help="Select which features to use. This is an 8 position long array of 0 and 1, where each position determines which co-elution feature to use. Features sorted by position are: MI, Bayes, Euclidean, WCC, Jaccard, PCCN, PCC, and Apex.  Each default=11101001", default="11101001")
 	parser.add_argument("input_dir",  type = str, help="Directory containing the elution files for each experiment")
-	parser.add_argument("-S", "--source", type = str, help="Eitehr automatically download reference from GO, CORUM, and Uniprot, functional, or use suplied cluster/ppi file. Values: TAXID, CLUST, PPI, default: TAXID",
+	parser.add_argument("-S", "--source", type = str, help="Flag for telling EPIC what input reference type to expect. TAXID: automatically download reference from GO,CORUM,INtACT. CLUST expect protein cluster flat file. PPI expects PPI flat file. Values: TAXID, CLUST, PPI, default: TAXID",
 						default="TAXID")
-	parser.add_argument("reference", type = str,help="Taxid, or file location of the used reference. When not using a taxid it is required to change the --source argument to either PPI or CLUST. default a taxonomic id")
+	parser.add_argument("reference", type = str,help="Taxid, or file location of the used clust/ppi reference. When not using taxid, it is required to change the --source argument to either PPI or CLUST. default a taxonomic id")
 	parser.add_argument("output_dir", type = str,help="Directory containing the output files")
 	parser.add_argument("-o", "--output_prefix", type = str,help="Prefix name for all output Files", default="Out")
 
@@ -108,7 +108,6 @@ def main():
  		scoreCalc.readTable(args.precalcualted_score_file, gs)
 
 	print scoreCalc.scores.shape
-	sys.exit()
 
 	functionalData = ""
 	gs.positive = set(gs.positive & set(scoreCalc.ppiToIndex.keys()))
