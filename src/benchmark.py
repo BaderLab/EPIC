@@ -96,7 +96,7 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir, overlap,
 		print "number of ppis"
 		print len(network)
 
-		fold_scores, fold_head = utils.clustering_evaluation(all_gs.complexes, pred_clusters, "Fold %i " % (index+1), True)
+		fold_scores, fold_head = utils.clustering_evaluation(eval.complexes, pred_clusters, "Fold %i " % (index+1), True)
 		out_scores.append("%i\t%i\t%s" % (len(network), len(pred_clusters.get_complexes()), fold_scores))
 		out_head.append("Fold %i Num_pred_PPIS\tFold %i NUM_pred_CLUST\t%s" % ((index+1), (index+1), fold_head))
 
