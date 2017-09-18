@@ -45,7 +45,7 @@ class Goldstandard_from_Complexes():
 			if tmp_clust.need_to_be_mapped == True and orthmap !="":
 				orthmap.mapComplexes(tmp_clust)
 			for compl in tmp_clust.complexes:
-				self.complexes.addComplex(i, tmp_clust.complexes[compl])
+				self.complexes.addComplex("%i;%s;%s" % (i, db_clust.name, compl), tmp_clust.complexes[compl])
 				i += 1
 
 		print "Total number of complexes %i in %s" % (total_complexes, self.name)
@@ -57,6 +57,9 @@ class Goldstandard_from_Complexes():
 
 		self.complexes.filter_complexes()
 		print "After size filtering %i number of complexes in % s" % (len(self.complexes.complexes), self.name)
+
+		for comp in self.complexes.complexes:
+			print "%s\t%s" % (str(comp), ",".join(self.complexes.complexes[comp]))
 
 		self.complexes.merge_complexes()
 		self.complexes.filter_complexes()
@@ -375,10 +378,11 @@ class Goldstandard_from_Complexes():
 
 class Intact_clusters():
 
-	def __init__(self, need_to_be_mapped, species = "homo_sapiens"):
+	def __init__(self, need_to_be_mapped, species = "homo_sapiens", name = "IntAct"):
 		self.complexes = Clusters(need_to_be_mapped=need_to_be_mapped)
 		self.need_to_be_mapped = True
 		self.load_data(species)
+		self.name = name
 
 
 	def get_complexes(self):
@@ -399,7 +403,7 @@ class Intact_clusters():
 			members = re.sub("-\d+", "", members)
 			members = re.sub("-PRO_\d+", "", members)
 			members = set(members.split("|"))
-			self.complexes.addComplex(i, members)
+			self.complexes.addComplex("%i;%s" % (i, linesplit[1]), members)
 			i += 1
 
 # @author Florian Goebels
@@ -412,13 +416,14 @@ class CORUM():
 	#		ub upper bound complex should have at most  ub members
 	#		overlap_cutoff merge complexes that have an overlap_score > overlap_cutoff
 	#		source_species select for which species the complexes should be maintained
-	def __init__(self, need_to_be_mapped, source_species_regex = "(Human|Mammalia)"):
+	def __init__(self, need_to_be_mapped, source_species_regex = "(Human|Mammalia)", name = "CORUM"):
 		self.complexes = Clusters(need_to_be_mapped=need_to_be_mapped)
 		# static regex for identifying valid bochemical evidences codes
 		self.biochemical_evidences_regex ="MI:(2193|2192|2191|2197|2195|2194|2199|2198|0807|0401|0400|0406|0405|0404|0089|0084|0081|0007|0006|0004|0513|1029|0979|0009|0008|0841|1312|2188|2189|0411|0412|0413|0928|0415|0417|0098|0729|0920|0921|0603|0602|0605|0604|0402|0095|0096|0606|0091|0092|1142|1145|1147|0019|1309|0696|0697|0695|0858|0698|0699|0425|0424|0420|0423|0991|0990|0993|0992|0995|0994|0997|0996|0999|0998|1028|1011|1010|1314|0027|1313|0029|0028|0227|0226|0225|0900|0901|0430|0434|0435|1008|1009|0989|1004|1005|0984|1007|1000|0983|1002|1229|1087|1325|0034|0030|0031|0972|0879|0870|1036|0678|1031|1035|1034|0676|0440|1138|1236|0049|0048|1232|0047|1137|0419|0963|1026|1003|1022|0808|0515|0514|1187|0516|0511|1183|0512|0887|0880|0889|0115|1006|1249|0982|0953|1001|0508|0509|0657|0814|1190|1191|0813|0066|0892|0899|1211|0108|1218|1352|1354|0949|0946|0947|0073|0071|1019|2168|0700|2167|1252|1017|0276|1189|1184)"
 		self.source_species_regex = source_species_regex
 		self.getCORUM()
 		self.readCORUM()
+		self.name = name
 
 
 	def get_complexes(self):
@@ -445,7 +450,7 @@ class CORUM():
 		for line in zipfile.open("allComplexes.txt").readlines():
 			line = line.rstrip()
 			linesplit = np.array(line.split("\t"))
-			corum_id = linesplit[0]
+			corum_id = linesplit[0] + ";" + linesplit[1]
 			self.corum_raw[corum_id] = linesplit[(2,5,7),]
 
 	# @author Florian Goebels
@@ -731,10 +736,11 @@ class QuickGO():
 	# object constructor makes internet connection and downloads go annotations into the wd/go_files folder as taxid.go file
 	# @param
 	#		taxid of species that go annotation should be downloaded
-	def __init__(self, taxid, need_to_be_mapped):
+	def __init__(self, taxid, need_to_be_mapped, name ="QuickGO"):
 		self.taxid = taxid
 		self.complexes = Clusters(need_to_be_mapped=need_to_be_mapped)
 		self.get_GO_complexes()
+		self.name = name
 
 
 	# @author Florian Goebels
@@ -751,7 +757,7 @@ class QuickGO():
 			line = line.rstrip()
 			linesplit = line.split("\t")
 			prot = linesplit[1]
-			go_complex = linesplit[6]
+			go_complex = linesplit[6] + ";" + linesplit[7]
 			date = int(linesplit[12])
 			if date > 20170512: continue
 			# Adding prot to go map
@@ -764,7 +770,7 @@ class QuickGO():
 		quickgoURL_FH.close()
 		i = 0
 		for go_complex in go_to_prot_map:
-			self.complexes.addComplex(i, go_to_prot_map[go_complex])
+			self.complexes.addComplex(go_complex, go_to_prot_map[go_complex])
 			i+=1
 
 	def get_complexes(self):

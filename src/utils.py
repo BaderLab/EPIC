@@ -318,7 +318,7 @@ def predict_clusters(predF, outF):
 	clustering_CMD = "java -jar %s/cluster_one-1.0.jar %s > %s" % (dir_path, predF, outF)
 	os.system(clustering_CMD)
 
-def load_data(data, scores, orthmap=""):
+def load_data(data, scores, orthmap="", fc=2, mfc=1):
 
 	if type(data) is list:
 		paths = data
@@ -330,7 +330,7 @@ def load_data(data, scores, orthmap=""):
 	for elutionFile in paths:
 		if elutionFile.rsplit(os.sep, 1)[-1].startswith("."): continue
 		elutionFile = elutionFile.rstrip()
-		elutionData = CS.ElutionData(elutionFile)
+		elutionData = CS.ElutionData(elutionFile, frac_count=fc, max_frac_count=mfc)
 		if orthmap !="":
 			if orthmap != False:
 				mapper = GS.Inparanoid("", inparanoid_cutoff=1)
@@ -629,3 +629,13 @@ def generate_all_corr_combination(n = 8):
 		features_list.append(feature_combination)
 
 	return features_list
+
+
+def Goldstandard_from_cluster_File(gsF, foundprots=""):
+	clusters = GS.Clusters(need_to_be_mapped=False)
+	clusters.read_file(gsF)
+	if foundprots != "": clusters.remove_proteins(foundprots)
+	gs = GS.Goldstandard_from_Complexes("All")
+	gs.complexes = clusters
+	gs.make_pos_neg_ppis()
+	return gs
