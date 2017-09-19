@@ -1,12 +1,9 @@
 from __future__ import division
 import numpy as np
-import copy, os, sys, re
+import os, sys, re
 import CalculateCoElutionScores as CS
 import GoldStandard as GS
 import utils as utils
-import matplotlib.pyplot as plt
-from scipy.spatial import distance
-from scipy.stats import zscore
 import glob, math
 import random as rnd
 
@@ -15,6 +12,7 @@ import random as rnd
 def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir, overlap, local):
 	out_scores = []
 	out_head = []
+	header = ["Num_pred_PPIS", "NUM_pred_CLUST", "mmr", "overlapp", "simcoe", "mean_simcoe_overlap", "sensetivity", "ppv", "accuracy","sep"]
 
 	train_eval_container = all_gs.n_fols_split(n_fold, overlap)
 
@@ -46,12 +44,8 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir, overlap,
 		print "Overlap negative %i" % ( len(train.negative & eval.negative))
 
 
-		netF = "%s.fold_%s.pred.txt" % (output_dir, index)
-		clustF = "%s.fold_%s.clust.txt" % (output_dir, index)
-
+		network = []
 		if local :
-		# Evaluate classifier
-		# utils.bench_clf(scoreCalc, train, eval, clf, output_dir, verbose=True)
 		# Predict protein interaction based on n_fold cross validation
 			network = utils.make_predictions_cross_validation(scoreCalc, train, eval, clf)
 
@@ -59,17 +53,27 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir, overlap,
 			network = utils.predictInteractions(scoreCalc, clf, train, verbose=True)
 
 
+		netF = "%s.fold_%s.pred.txt" % (output_dir, index)
+		clustF = "%s.fold_%s.clust.txt" % (output_dir, index)
+
+		#if os.path.isfile(netF):
+		#	netFH = open(netF)
+		#	for line in netFH:
+		#		line = line.rstrip()
+		#		network.append(line)
+		#	netFH.close()
+
+		fold_head = []
+
 		if len(network) == 0:
 			print "No edges were predicted"
 			tmp_scores = [0]*10
-			prefix = "Fold %i " % (index+1)
-			tmp_head = "\t".join(["%s%s" % (prefix, h) for h in
-							  ["Num_pred_PPIS", "NUM_pred_CLUST", "mmr", "overlapp", "simcoe", "mean_simcoe_overlap", "sensetivity", "ppv", "accuracy",
-							   "sep"]])
-			out_head.append(tmp_head)
+			fold_head = "\t".join(["%s%s" % ("Fold %i " % (index+1), h) for h in header])
+			out_head.append(fold_head)
 			out_scores.append("\t".join(map(str,tmp_scores)))
 			complex_eval_score_vector[index, :] = tmp_scores
 			continue
+
 
 		tmp = []
 		for ppi in network:
@@ -98,7 +102,7 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir, overlap,
 
 		fold_scores, fold_head = utils.clustering_evaluation(eval.complexes, pred_clusters, "Fold %i " % (index+1), True)
 		out_scores.append("%i\t%i\t%s" % (len(network), len(pred_clusters.get_complexes()), fold_scores))
-		out_head.append("Fold %i Num_pred_PPIS\tFold %i NUM_pred_CLUST\t%s" % ((index+1), (index+1), fold_head))
+		out_head.append("\t".join(["%s%s" % ("Fold %i " % (index+1), h) for h in header]))
 
 		tmp_scores = [len(network), len(pred_clusters.get_complexes())]
 		tmp_scores.extend(map(float, fold_scores.split("\t")))
@@ -108,7 +112,7 @@ def n_fold_cross_validation(n_fold, all_gs, scoreCalc, clf, output_dir, overlap,
 	averaged_complex_eval_metrics_vector = np.mean(complex_eval_score_vector, axis = 0)
 
 	out_scores.append("\t".join(map(str, averaged_complex_eval_metrics_vector)))
-	mean_head = re.sub("Fold \d", "Mean", "Fold %i Num_pred_PPIS\tFold %i NUM_pred_CLUST\t%s" % ((index+1), (index+1), fold_head))
+	mean_head = "\t".join(["%s%s" % ("Mean ", h) for h in header])
 
 	out_head.append(mean_head)
 	return "\t".join(out_scores), "\t".join(out_head)
@@ -134,70 +138,6 @@ def cut(args):
 		print >> outFH, "%s\t%s" % (edge, "\t".join(map(str, edge_scores)))
 	outFH.close()
 	feature_comb.close()
-
-
-def merge_MS(args):
-	def read_scores(scoreF, cutoff):
-		num_prots = CS.lineCount(scoreF)
-		scoreFH = open(scoreF)
-		header = scoreFH.readline().rstrip()
-		header = header.split("\t")
-		out = CS.CalculateCoElutionScores("", "", "", 4)
-		out.scores = np.zeros((num_prots , len(header[2:])))
-		out.header = header
-		i = 0
-		for line in scoreFH:
-			line = line.rstrip()
-			if line == "":continue
-			line = line.split("\t")
-			edge = "\t".join(line[:2])
-			this_score = np.array(map(float, line[2:]))
-			if len(list(set(np.where(this_score >= cutoff)[0]))) > 0:
-				out.ppiToIndex[edge] = i
-				out.IndexToPpi[i] = edge
-				out.scores[i, :] = this_score
-				i += 1
-		out.scores = out.scores[0:i, :]
-		print i
-		return out
-
-	ms1_in, ms2_in, mode, outF = args
-	ms1cutoff = 0
-	ms2cutoff = 0
-
-	if mode == "i":
-		ms1cutoff = 0.5
-		ms2cutoff = 0.5
-	if mode == "u":
-		ms1cutoff = 0
-		ms2cutoff = 0
-	if mode == "l":
-		ms1cutoff = 0
-		ms2cutoff = 0.5
-	if mode == "r":
-		ms1cutoff = 0.5
-		ms2cutoff = 0
-
-	ms1 = read_scores(ms1_in, ms1cutoff)
-	print "Done reading in MS1"
-	print ms1.scores.shape
-
-	ms2 = read_scores(ms2_in, ms2cutoff)
-	print "Done reading in MS2"
-	print ms2.scores.shape
-
-
-	ms2.merge(ms1, mode)
-	print "Done merging MS1 and MS2"
-	print ms2.scores.shape
-
-
-	outFH = open(outF, "w")
-	print >> outFH, "\t".join(ms2.header)
-	for i in range(ms2.scores.shape[0]):
-		if len(list(set(np.where(ms2.scores[i, :] > 0.5)[0]))) > 0:
-			print >> outFH, "%s\t%s" % (ms2.IndexToPpi[i], "\t".join(map(str, ms2.scores[i, :])))
-	outFH.close()
 
 def exp_comb(args):
 	FS, i, j, num_iter, input_dir, num_cores, ref_complexes, scoreF, mode, fun_anno_F, output_dir = args
@@ -270,184 +210,6 @@ def exp_comb(args):
 	print >> outFH, "FS\tNum_iex\tNum_beads\tSearch_engine\tNum_Prots\t%s" % out_head
 	for score in all_scores:
 		print >> outFH, "%s" % (score)
-	outFH.close()
-
-
-def EPIC_cor(args):
-	print "fuu"
-	fs_eval_dir = args[0]
-	vals = []
-	fs = []
-	for fs_eval_F in os.listdir(fs_eval_dir):
-		if not fs_eval_F.endswith(".eval.txt"): continue
-		fs_eval_F = fs_eval_dir + os.sep + fs_eval_F
-		print fs_eval_F
-		fs_eval_FH = open(fs_eval_F)
-		print fs_eval_FH.readline().split("\t")[1:19]
-		for line in fs_eval_FH:
-			line = line.rstrip().split("\t")
-			if (int(line[2])) < 100: continue
-			vals.append(map(float, line[1:19]))
-			fs.append(line[0])
-		fs_eval_FH.close()
-	vals = np.array(vals)
-	for row in np.corrcoef(np.transpose(vals)):
-		print "\t".join(map("{:.2f}".format, row))
-
-def EPIC_eval_fs(args):
-	in_dir, e_dir, scoreF, refF, outF = args
-	ref_clusters = GS.Clusters(False)
-	ref_clusters.read_file(refF)
-	outFH = open(outF, "w")
-	i = 0
-	allFiles = paths = [os.path.join(in_dir,fn) for fn in next(os.walk(in_dir))[2]]
-	for file in allFiles:
-		if not file.endswith("clust.txt"): continue
-		pred_clusters = GS.Clusters(False)
-		pred_clusters.read_file(file)
-		_, overlap, _ = pred_clusters.get_matching_complexes(ref_clusters)
-		filesplit = file.split(".")[0:4]
-		fs_comp = filesplit[0].split(os.sep)[-1]
-		scores, head =  utils.clustering_evaluation(ref_clusters, pred_clusters, "Eval", False)
-		if i == 0:
-			print "FS_code\tCLF\tSE\tFS\tNum_complexes" + "\t".join(np.array(head.split("\t"))[[0,1,6]])
-			print >> outFH, "FS_code\tCLF\tSE\tFS\tNum_complexes" + "\t".join(np.array(head.split("\t"))[[0,1,6]])
-		print fs_comp + "\t" + "\t".join(filesplit[1:4]) + "\t"+ str(len(pred_clusters.complexes))+"\t" + "\t".join(np.array(scores.split("\t"))[[0, 1, 6]])
-		print >> outFH, fs_comp + "\t" + "\t".join(filesplit[1:4]) + "\t"+ str(len(pred_clusters.complexes))+"\t" + "\t".join(np.array(scores.split("\t"))[[0, 1, 6]])
-		i += 1
-	outFH.close()
-
-def EPIC_eval_fs_DIST(args):
-
-	def getScore(scores):
-		out = []
-		for cat in [[2], [3], [8]]:
-			out.append(sum(scores[cat])/len(cat))
-		return out
-
-	def dist(a,b):
-		return distance.euclidean(a,b)
-
-	def epic_read_eval(fs_eval_dir):
-
-		def norm_score(scores, columns):
-			for i in columns:
-				min_score = min(scores[:, i])
-				max_score = max(scores[:, i])
-				for j in range(len(scores[:, i])):
-					scores[j, i] = (scores[j, i] - min_score) / (max_score - min_score)
-
-		vals = []
-		fs = []
-		header = ""
-		for fs_eval_F in  os.listdir(fs_eval_dir):
-			if not fs_eval_F.endswith(".eval.txt"): continue
-			fs_eval_F = fs_eval_dir + os.sep + fs_eval_F
-			fs_eval_FH = open(fs_eval_F)
-			param = "-".join(fs_eval_F.split(os.sep)[-1].split(".")[0:2])
-			header = np.array(fs_eval_FH.readline().strip().split("\t"))
-			header =  np.append(header[1:3], header[11:])
-
-			print fs_eval_F
-			for line in fs_eval_FH:
-				line = line.rstrip().split("\t")
-				scores  = np.append(line[1:3], line[11:])
-				vals.append(map(float, scores))
-				fs.append("%s-%s" % (param, line[0]))
-
-			fs_eval_FH.close()
-
-		vals = np.array(vals)
-		zvals = zscore(vals)
-
-		return header, fs, vals, zvals
-
-	all_scores = {}
-
-	fs_eval_Files, outDir = args
-
-	header, fs, vals, zvals = epic_read_eval(fs_eval_Files)
-	fs = np.array(fs)
-
-	def make_hists(x, header, outDir):
-		fig = plt.figure()
-		plt.rcParams.update({'font.size': 8})
-		for i in range(len(header)):
-			scores = x[:,i]
-
-			ax = fig.add_subplot(3,4, i+1)
-			ax.hist(scores)
-			ax.set_title(header[i].replace(" ", "_"), fontsize=6)
-			for tick in ax.get_xticklabels():
-				tick.set_rotation(45)
-
-		fig.tight_layout()
-		fig.subplots_adjust(top=0.88)
-		plt.savefig(outDir + ".hist.pdf")
-		plt.close()
-
-#	filtering feature selection with low number of predicted clusters
-
-#	sel_vals = set(range(len(vals[:,1])))
-#	for k in range(len(header)):
-#		this_lb = np.percentile(vals[:, k], 5)
-#		this_ub = np.percentile(vals[:, k], 95)
-#		sel_vals &= set(np.where(vals[:, k] > this_lb)[0]) & set(np.where(vals[:, k] < this_ub)[0])
-
-
-	print header[1]
-	print header[2]
-	print header[3]
-	print header[8]
-
-	sel_vals = np.where(vals[:, 1] > 100)[0]
-	sel_vals = list(sel_vals)
-
-	vals = vals[sel_vals,]
-	zvals = zvals[sel_vals,]
-	fs = np.array(fs)[sel_vals,]
-
-	make_hists(vals, header, outDir + ".raw")
-	make_hists(zvals, header, outDir + ".zscore")
-
-	this_max_val_fc = []
-	this_max_vals = []
-	max_zvals = []
-	for i in range(len(header)):
-		max_index = np.argmax(np.array(zvals[:, i]))
-		this_max_vals.append( vals[max_index, i])
-		this_max_val_fc.append(fs[max_index])
-		max_zvals.append(zvals[max_index, i])
-	max_vals = np.array(getScore(np.array(max_zvals)))
-
-#	print max_zvals
-#	print max_vals
-
-
-	composit_scores = {}
-	scores = {}
-	for i in range(len(fs)):
-		this_f = fs[i]
-		this_vals = getScore(zvals[i,:])
-		this_dist = dist(this_vals,max_vals)
-		summed_zscores = sum(this_vals)
-		composit_scores[this_f] = summed_zscores
-		scores[this_f] = this_dist
-
-	scores_sorted = sorted(scores, key=scores.get)
-
-	outFH = open(outDir + ".results.txt", "w")
-	print >> outFH, "Artifical optimal vector"
-	print >> outFH, "\t" + "\t".join(header)
-	print >> outFH, "Scores:\t\t\t" + "\t".join(map(lambda x : "%.2f" % x, this_max_vals))
-	print >> outFH, "Optimal FS per category:\t" + "\t".join(this_max_val_fc)
-
-	print >> outFH, "Composit_scorte\tDistance\tFS\t" + "\t".join(header)
-	for  f in scores_sorted:
-		score = scores[f]
-		c_score = composit_scores[f]
-		f_scores = "\t".join(map(lambda x : "%.2f" % x, vals[np.where(fs == f)[0], :][0]))
-		print >> outFH, "%.2f\t%.2f\t%s\t%s" % (c_score, score, f, f_scores)
 	outFH.close()
 
 def Goldstandard_from_cluster_File(gsF, foundprots = ""):
@@ -555,9 +317,10 @@ def write_reference(args):
 	outFH.close()
 
 def calc_feature_combination(args):
-	feature_combination, se, input_dir, use_rf, overlap, local, cutoff, num_cores, scoreF, mode, anno ,faF, ref_complexes, output_dir = args
+	feature_combination, se, input_dir, use_rf, num_folds, overlap, local, cutoff, num_cores, scoreF, mode, anno ,faF, ref_complexes, output_dir = args
 	#Create feature combination
 	cutoff = float(cutoff)/100
+	num_folds = int(num_folds)
 
 	if feature_combination == "00000000": sys.exit()
 	this_scores = get_fs_comb(feature_combination)
@@ -578,8 +341,6 @@ def calc_feature_combination(args):
 	scoreCalc.readTable(scoreF, ref_gs)
 	feature_comb = feature_selector([fs.name for fs in this_scores], scoreCalc)
 
-	print "I am debugging here"
-	print type(feature_comb)
 
 	print feature_comb.scoreCalc.scores.shape
 	print scoreCalc.scores.shape
@@ -594,7 +355,7 @@ def calc_feature_combination(args):
 		print "not support this mode"
 		sys.exit()
 
-	scores, head = n_fold_cross_validation(5, ref_gs, feature_comb, clf, output_dir, overlap, local)
+	scores, head = n_fold_cross_validation(num_folds, ref_gs, feature_comb, clf, output_dir, overlap, local)
 
 
 	outFH = open(output_dir + ".eval.txt" , "w")
@@ -743,23 +504,11 @@ def main():
 	elif mode == "-make_ref":
 		write_reference(sys.argv[2:])
 
-	elif mode == "-cor_eval":
-		EPIC_cor(sys.argv[2:])
-
-	elif mode == "-best_fs":
-		EPIC_eval_fs_DIST(sys.argv[2:])
-
 	elif mode == "-exp_comb":
 		exp_comb(sys.argv[2:])
 
-	elif mode == "-merge_ms":
-		merge_MS(sys.argv[2:])
-
 	elif mode == "-cut":
 		cut(sys.argv[2:])
-
-	elif mode == "-best_fs2":
-		EPIC_eval_fs(sys.argv[2:])
 
 	elif mode == "-get_eval":
 		make_eval(sys.argv[2:])
