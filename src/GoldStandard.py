@@ -58,8 +58,8 @@ class Goldstandard_from_Complexes():
 		self.complexes.filter_complexes()
 		print "After size filtering %i number of complexes in % s" % (len(self.complexes.complexes), self.name)
 
-		for comp in self.complexes.complexes:
-			print "%s\t%s" % (str(comp), ",".join(self.complexes.complexes[comp]))
+	#	for comp in self.complexes.complexes:
+	#		print "%s\t%s" % (str(comp), ",".join(self.complexes.complexes[comp]))
 
 		self.complexes.merge_complexes()
 		self.complexes.filter_complexes()
