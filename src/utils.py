@@ -481,7 +481,7 @@ def json_to_cy_js(div_id, json_str):
                     });
 	            """ % (div_id, json_str)
 
-def elutionDatas_to_treeview(eDatas, foundprots):
+def elutionDatas_to_treeview(eDatas, foundprots, normed=False):
 	out = {}
 	colnums = {}
 	header = []
@@ -502,7 +502,7 @@ def elutionDatas_to_treeview(eDatas, foundprots):
 		for eData in eDatas:
 			scores = [0]*colnums[eData.name]
 			if eData.hasProt(prot):
-				scores = eData.getElution(prot)
+				scores = eData.getElution(prot, normed)
 			out[prot].extend(scores)
 	return header, out
 
