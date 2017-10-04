@@ -177,12 +177,12 @@ def plotCurves(curves, outF, xlab, ylab):
 	plt.close()
 
 # @author Florian Goebels
-def predictInteractions(scoreCalc, clf, gs, verbose= True):
+def predictInteractions(scoreCalc, clf, gs, to_train=True, verbose= True):
 
 	ids_train, data_train, targets_train = scoreCalc.toSklearnData(gs)
 
 
-	clf.fit(data_train, targets_train)
+	if to_train: clf.fit(data_train, targets_train)
 
 	num_features = data_train.shape[1]
 
