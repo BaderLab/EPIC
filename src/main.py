@@ -104,6 +104,11 @@ def main():
 
 	output_dir = args.output_dir + os.sep + args.output_prefix
 
+	refFH = open(output_dir + ".ref_complexes.txt", "w")
+	for comp in gs.complexes.complexes:
+			print >> refFH, "%s\t%s" % (",".join(comp), ",".join(gs.complexes.complexes[comp]))
+	refFH.close()
+
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, elution_datas, output_dir + ".scores.txt", num_cores=args.num_cores, cutoff= args.co_elution_cutoff)
 	if args.precalcualted_score_file == "NONE":
 		scoreCalc.calculate_coelutionDatas(gs)
