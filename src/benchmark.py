@@ -197,7 +197,7 @@ def exp_comb(args):
 		feature_comb = feature_selector([fs.name for fs in this_scores], scoreCalc, valprots=this_foundprots, elution_file_names=this_eprofiles_fnames)
 		if mode == "comb":
 			feature_comb.add_fun_anno(functionalData)
-		scores, head =  n_fold_cross_validation(5, ref_gs, feature_comb, clf, "%s_%i_%i" % (output_dir, i, j ), overlap = False, local = False)
+		scores, head =  n_fold_cross_validation(2, ref_gs, feature_comb, clf, "%s_%i_%i" % (output_dir, i, j ), overlap = True, local = False)
 
 	#	head, scores = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, output_dir, valprots=this_foundprots)
 		out_head = head
