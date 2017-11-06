@@ -342,21 +342,23 @@ def load_data(data, scores, orthmap="", fc=2, mfc=1):
 			score.init(elutionData)
 	return elutionProts, elutionDatas
 
-def create_goldstandard(target_taxid, valprots):
-	def create_gs_set(cluster_obj, orthmap, name, valprots):
-		gs =  GS.Goldstandard_from_Complexes(name)
-		gs.make_reference_data(cluster_obj, orthmap, found_prots=valprots)
-		return gs
 
-	if target_taxid !="9606":
-		orthmap = GS.Inparanoid(taxid=target_taxid)
+def get_reference_from_net(target_taxid):
+	if target_taxid != "9606":
 		reference_clusters = [GS.Intact_clusters(True), GS.CORUM(True), GS.QuickGO("9606", True), GS.QuickGO(target_taxid, False)]
-		#reference_clusters = [GS.Intact_clusters(True)]
 	else:
 		reference_clusters = [GS.Intact_clusters(False), GS.CORUM(False), GS.QuickGO("9606", False)]
+	return reference_clusters
+
+def create_goldstandard(clusters, target_taxid, valprots):
+	if target_taxid !="9606" and target_taxid != "":
+		orthmap = GS.Inparanoid(taxid=target_taxid)
+	else:
 		orthmap = ""
-	all_gs =  create_gs_set(reference_clusters, orthmap, "Training", valprots)
-	return all_gs
+
+	gs = GS.Goldstandard_from_Complexes("Goldstandard")
+	gs.make_reference_data(clusters, orthmap, found_prots=valprots)
+	return gs
 
 
 def clustering_evaluation(eval_comp, pred_comp, prefix, verbose= True):

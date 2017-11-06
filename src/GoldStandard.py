@@ -462,6 +462,17 @@ class CORUM():
 			prots = set(prots.split(";"))
 			self.complexes.addComplex(comp, prots)
 
+
+class FileClusters():
+	def __init__(self, filepath, valprots, name="File"):
+		self.complexes = Clusters(False)
+		self.complexes.read_file(filepath)
+		self.complexes.remove_proteins(valprots)
+		self.name = name
+
+	def get_complexes(self):
+		return self.complexes
+
 class Clusters():
 
 	def __init__(self, need_to_be_mapped, overlap_cutoff = 0.8, lb = 3, ub = 50):
