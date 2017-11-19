@@ -151,9 +151,9 @@ def main():
 		tmp_sc = copy.deepcopy(scoreCalc)
 		tmp_sc.add_fun_anno(functionalData)
 		print "Start benchmarking"
-		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir, format="png")
+		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir, format="png", verbose=True)
 	else:
-		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir, format="png")
+		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir, format="png", verbose=True)
 
 	network = utils.make_predictions(scoreCalc, args.mode, clf, gs, fun_anno=functionalData)
 
