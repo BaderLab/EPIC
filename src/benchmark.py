@@ -262,7 +262,7 @@ class feature_selector:
 				self.to_keep_score.append(i - 2)
 
 	def valid_score(self, scores):
-		return len(list(set(np.where(scores >= self.cutoff)[0])))>0
+		return len(list(set(np.where(scores > self.cutoff)[0])))>0
 
 	def filter_score(self, scores):
 		if self.valid_score(scores[self.to_keep_score]):

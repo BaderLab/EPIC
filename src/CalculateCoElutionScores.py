@@ -130,7 +130,7 @@ class ElutionData():
 			line = line.split("\t")
 			protID = line[0]
 			counts = map(float, line[1:])
-			if len(list(set(np.where(np.array(counts) > 0.0)[0]))) >= frac_count and max(counts)>=max_count_cutoff:
+			if len(list(set(np.where(np.array(counts) > 0.0)[0]))) >= frac_count and max(counts) >= max_count_cutoff:
 				elutionMat.append(counts)
 				prot2Index[protID] = i
 				i += 1
