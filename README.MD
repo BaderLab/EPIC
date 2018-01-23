@@ -7,7 +7,7 @@
 #### First, open terminal and go to your desired directory. Then git clone at your desired directory:
 git clone https://github.com/BaderLab/EPIC
 
-### Preparing Input Data
+### Prepare Input Data
 #### Make a file folder and put all the elution profile files into this file folder. There are a couple of examples in the the folder: 
 EPIC/test_data/elution_profiles/
 #### Uniprot protein identifiers should be used in these elution profile files. Assume the input elution profiles are stored at
