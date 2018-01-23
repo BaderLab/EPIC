@@ -17,6 +17,10 @@ InputFolder/
 -s 11101001
 
 #### There are two ways of generating gold standard protein complexes.
+#### The first way is to curate gold standard protein complexes yourself. An exmple file (Worm_reference_complexes.txt) of gold standard protein complexes is given in EPIC/test_data/. The format of gold standard protein complexes file you curated should be same as this file. To specify using manually curated gold standard protein complexes, you can do (assume the protein complexes file is complexes.txt and stored at ../):
+-c ../complexes.txt
+#### The second way is to automatically download protein complexes from public databases (CORUM, I)
+ 
 
 
 command = "python /EPIC/src/main.py -s "+ feature + " InputFolder/ -c /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/All.complexes.txt /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/ -o " + feature + mode + anno + " -m " + mode + " -M RF -n 7 -f " + anno  + " -F /Users/lucasminghu/Desktop/WormMap/WormNet/WormNetV3_noZeros_no_physical_interactions.txt -P /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/MSB.11110001.scores.txt
