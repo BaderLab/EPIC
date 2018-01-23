@@ -7,11 +7,13 @@
 #### First, open terminal and go to your desired directory. Then git clone at your desired directory:
 git clone https://github.com/BaderLab/EPIC
 
+### Preparing Input Data
 #### Make a file folder and put all the elution profile files into this file folder. There are a couple of examples in the the folder: 
 EPIC/test_data/elution_profiles/
 #### Uniprot protein identifiers should be used in these elution profile files. Assume the input elution profiles are stored at
 InputFolder/
 
+### Run EPIC
 #### Specify correlation scores to be used in EPIC. Eight different correlation socres were implemented in EPIC, in order they are: Mutual Information, Bayes Correlation, Euclidean Distance, Weighted Cross-Correlation, Jaccard Score, PCCN, Pearson Correlation Coefficient, and Apex Score. 
 #### "0" indicates that we don't use this correlation score and "1" indicates that we use this correlation score. For example, 11101001 means we will use Mutual Information, Bayes Correlation, Euclidean Distance, Jaccard Score and Apex Score. To specify the correlation scores to use:
 -s 11101001
