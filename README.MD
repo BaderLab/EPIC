@@ -9,12 +9,14 @@ git clone https://github.com/BaderLab/EPIC
 
 #### Make a file folder and put all the elution profile files into this file folder. There are a couple of examples in the the folder: 
 EPIC/test_data/elution_profiles/
-#### Uniprot protein identifiers should be used in these elution profile files.
+#### Uniprot protein identifiers should be used in these elution profile files. Assume the input elution profiles are stored at
+InputFolder/
 
 
+#### Specify correlation scores to be used in EPIC. Eight different correlation socres were implemented in EPIC, in order they are: Mutual Information, Bayes Correlation, Euclidean Distance, Weighted Cross-Correlation, Jaccard Score, PCCN, Pearson Correlation Coefficient, and Apex Score. "0" indicates that we don't use this correlation score and "1" indicates that we use this correlation score. For example, 11101001 means we will use Mutual Information, Bayes Correlation, Euclidean Distance, Jaccard Score and Apex Score.
 
 
-command = "python /Users/lucasminghu/Desktop/newest_EPIC/EPIC/src/main.py -s "+ feature + " /Users/lucasminghu/Desktop/Input_for_EPIC/Data_for_different_engines/MSB/ -c /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/All.complexes.txt /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/ -o " + feature + mode + anno + " -m " + mode + " -M RF -n 7 -f " + anno  + " -F /Users/lucasminghu/Desktop/WormMap/WormNet/WormNetV3_noZeros_no_physical_interactions.txt -P /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/MSB.11110001.scores.txt
+command = "python /EPIC/src/main.py -s "+ feature + " InputFolder/ -c /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/All.complexes.txt /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/ -o " + feature + mode + anno + " -m " + mode + " -M RF -n 7 -f " + anno  + " -F /Users/lucasminghu/Desktop/WormMap/WormNet/WormNetV3_noZeros_no_physical_interactions.txt -P /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/MSB.11110001.scores.txt
 
 	parser.add_argument("-s", "--feature_selection", type = str, help="Select which features to use. This is an 8 position long array of 0 and 1, where each position determines which co-elution feature to use. Features sorted by position are: MI, Bayes, Euclidean, WCC, Jaccard, PCCN, PCC, and Apex.  Each default=11101001", default="11101001")
 	parser.add_argument("input_dir",  type = str, help="Directory containing the elution files for each experiment")
