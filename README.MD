@@ -42,8 +42,15 @@ EPIC/test_data/elution_profiles/
 ##### You need to specify the number of cores used to run EPIC, the default number is 1. Assume you want to use six cores to run EPIC, you can give the dollowing command:
 -n 6
 
-##### EPIC can generate the protein-protein interaction dataset using different resources. As disscussed in the paper, we can use experimental data only, functional evidence data only or the combination of experimental data and functional evidence data. You might want to only use experimental data or in most cases, you might want to use both experimental data and functional evidence data. You can specify which source of data you want to use to generate protein-protein interactions dataset. "EXP" stands for experimental data only, "FA" stands for functional evidence data only and "COMB" stands for using both experimental data and functional evidence data. for exmaple, if you want to use both experimental and functional evidence data, you can using the following command:
+##### EPIC can generate the protein-protein interaction dataset using different resources. As disscussed in the paper, we can use experimental data only, functional evidence data only or the combination of experimental data and functional evidence data. You might want to only use experimental data or in most cases, you might want to use both experimental data and functional evidence data. You can specify which source of data you want to use to generate protein-protein interactions dataset. "EXP" stands for experimental data only, "FA" stands for functional evidence data only and "COMB" stands for using both experimental data and functional evidence data. for exmaple, if you want to use both experimental and functional evidence data, you can use the following command:
 -m COMB
+
+##### As mentioned above, EPIC can integrate functional evidence data with experimental data to generate final protein-protein interaction dataset. EPIC can automatically download functional evidence data from GeneMANIA and STRING databases. You can also specify your own curated functional evidence dataset. "GM" stands for GeneMANIA database, "STRING" stands for STRING database and "FILE" stands for the user curated database. For example, you want to use STRING as functional evidence, you can use the following command:
+-f STRING
+##### If you you use your own curated functional evidence data, you should also specify the directory of functional evidence data file. Assume the functional evidence data file is "fun_anno_file.txt" and it is stored in the file folder "../", you can command as:
+-f FILE -F ../fun_anno_file.txt
+##### There is an example file gives the format of "fun_anno_file.txt" here, you can find the file at:
+
 
 
 
