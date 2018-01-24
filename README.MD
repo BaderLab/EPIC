@@ -21,8 +21,11 @@ InputFolder/
 #### There are two ways of generating gold standard protein complexes.
 #### The first way is to curate gold standard protein complexes yourself. An exmple file (Worm_reference_complexes.txt) of gold standard protein complexes is given in EPIC/test_data/. The format of gold standard protein complexes file you curated should be same as this file. To specify using manually curated gold standard protein complexes, you can do (assume the protein complexes file is complexes.txt and stored at ../):
 -c ../complexes.txt
-#### The second way is to automatically download protein complexes from public databases (CORUM, I)
+#### The second way is to automatically download protein complexes from public databases (CORUM, IntAct and GO). In this case, you only need to specify the Taxonomy ID for the species you are studying on using "-t" (assume that we are studying C. elegans):
+-t 6239
  
+#### Specify the directory of storing output files.
+#### We can 
 
 ### Contact
 #### If you have any problems, you could contact Lucas (lucasming.huATmail.utoronto.ca) or Florian (florian.goebelsATgooglemail.com).
