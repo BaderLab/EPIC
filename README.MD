@@ -2,33 +2,33 @@
 ## Elution Profile-Based Inference of Protein Complexes
 
 ### Installation
-#### To install EPIC, first make sure you have Python 2.7 and scikit-learn package installed. Also one correlation score ("wcc") utilizes R to perform computation, thus R and rpy2 should be installed in your computer too.
+##### To install EPIC, first make sure you have Python 2.7 and scikit-learn package installed. Also one correlation score ("wcc") utilizes R to perform computation, thus R and rpy2 should be installed in your computer too.
 
-#### First, open terminal and go to your desired directory. Then git clone at your desired directory:
+##### First, open terminal and go to your desired directory. Then git clone at your desired directory:
 git clone https://github.com/BaderLab/EPIC
 
 ### Prepare Input Data
-#### Make a file folder and put all the elution profile files into this file folder. There are a couple of examples in the the folder: 
+##### Make a file folder and put all the elution profile files into this file folder. There are a couple of examples in the the folder: 
 EPIC/test_data/elution_profiles/
-#### Uniprot protein identifiers should be used in these elution profile files. Assume the input elution profiles are stored at
+##### Uniprot protein identifiers should be used in these elution profile files. Assume the input elution profiles are stored at
 InputFolder/
 
 ### Run EPIC
-#### Specify correlation scores to be used in EPIC. Eight different correlation socres were implemented in EPIC, in order they are: Mutual Information, Bayes Correlation, Euclidean Distance, Weighted Cross-Correlation, Jaccard Score, PCCN, Pearson Correlation Coefficient, and Apex Score. 
-#### "0" indicates that we don't use this correlation score and "1" indicates that we use this correlation score. For example, 11101001 means we will use Mutual Information, Bayes Correlation, Euclidean Distance, Jaccard Score and Apex Score. To specify the correlation scores to use:
+##### Specify correlation scores to be used in EPIC. Eight different correlation socres were implemented in EPIC, in order they are: Mutual Information, Bayes Correlation, Euclidean Distance, Weighted Cross-Correlation, Jaccard Score, PCCN, Pearson Correlation Coefficient, and Apex Score. 
+##### "0" indicates that we don't use this correlation score and "1" indicates that we use this correlation score. For example, 11101001 means we will use Mutual Information, Bayes Correlation, Euclidean Distance, Jaccard Score and Apex Score. To specify the correlation scores to use:
 -s 11101001
 
-#### There are two ways of generating gold standard protein complexes.
-#### The first way is to curate gold standard protein complexes yourself. An exmple file (Worm_reference_complexes.txt) of gold standard protein complexes is given in EPIC/test_data/. The format of gold standard protein complexes file you curated should be same as this file. To specify using manually curated gold standard protein complexes, you can do (assume the protein complexes file is complexes.txt and stored at ../):
+##### There are two ways of generating gold standard protein complexes.
+##### The first way is to curate gold standard protein complexes yourself. An exmple file (Worm_reference_complexes.txt) of gold standard protein complexes is given in EPIC/test_data/. The format of gold standard protein complexes file you curated should be same as this file. To specify using manually curated gold standard protein complexes, you can do (assume the protein complexes file is complexes.txt and stored at ../):
 -c ../complexes.txt
-#### The second way is to automatically download protein complexes from public databases (CORUM, IntAct and GO). In this case, you only need to specify the Taxonomy ID for the species you are studying on using "-t" (assume that we are studying C. elegans):
+##### The second way is to automatically download protein complexes from public databases (CORUM, IntAct and GO). In this case, you only need to specify the Taxonomy ID for the species you are studying on using "-t" (assume that we are studying C. elegans):
 -t 6239
  
-#### Specify the directory of storing output files.
-#### We can 
+##### Specify the directory of storing output files.
+##### We can 
 
 ### Contact
-#### If you have any problems, you could contact Lucas (lucasming.huATmail.utoronto.ca) or Florian (florian.goebelsATgooglemail.com).
+##### If you have any problems, you could contact Lucas (lucasming.huATmail.utoronto.ca) or Florian (florian.goebelsATgooglemail.com).
 
 
 command = "python /EPIC/src/main.py -s "+ feature + " InputFolder/ -c /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/All.complexes.txt /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/ -o " + feature + mode + anno + " -m " + mode + " -M RF -n 7 -f " + anno  + " -F /Users/lucasminghu/Desktop/WormMap/WormNet/WormNetV3_noZeros_no_physical_interactions.txt -P /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/MSB.11110001.scores.txt
