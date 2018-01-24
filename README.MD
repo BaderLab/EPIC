@@ -42,7 +42,9 @@ EPIC/test_data/elution_profiles/
 ##### You need to specify the number of cores used to run EPIC, the default number is 1. Assume you want to use six cores to run EPIC, you can give the dollowing command:
 -n 6
 
-##### EPIC can generate the protein-protein interaction dataset using different resources. As disscussed in the paper, we can use experimental data only, functional evidence data only or the combination of experimental data and functional evidence data. You might want to only use experimental data or in most cases, you might want to use both experimental data and functional evidence data. 
+##### EPIC can generate the protein-protein interaction dataset using different resources. As disscussed in the paper, we can use experimental data only, functional evidence data only or the combination of experimental data and functional evidence data. You might want to only use experimental data or in most cases, you might want to use both experimental data and functional evidence data. You can specify which source of data you want to use to generate protein-protein interactions dataset. "EXP" stands for experimental data only, "FA" stands for functional evidence data only and "COMB" stands for using both experimental data and functional evidence data. for exmaple, if you want to use both experimental and functional evidence data, you can using the following command:
+-m COMB
+
 
 
 ### Contact
