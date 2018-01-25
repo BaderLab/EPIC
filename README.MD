@@ -67,8 +67,8 @@ EPIC/test_data/WormNetV3_noZeros_no_physical_interactions.txt.zip
 ##### Calculating different correlation coefficents can be a very time consuming process. After computation, a "scores.txt" will be generated and stored in your local computer, assume it is stored at the directory of "../". You can require EPIC to use the pre-calculated "scores.txt" as the input dataset and do:
 -P ../scores.txt
 
-##### Overall, you can give a comment like:
-python /EPIC/src/main.py -s "+ feature + " InputFolder/ -c /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/All.complexes.txt /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/ -o " + feature + mode + anno + " -m " + mode + " -M RF -n 7 -f " + anno  + " -F /Users/lucasminghu/Desktop/WormMap/WormNet/WormNetV3_noZeros_no_physical_interactions.txt -P /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/MSB.11110001.scores.txt
+##### Overall, you can give a comment like (we take default values for many parameters):
+python /EPIC/src/main.py -s 11101001 ../InputFolder/ -c ../complexes.txt ../OutputFolder/ -o PrefixName -M RF -n 6 -m COMB -f STRING 
 
 
 ### Contact
