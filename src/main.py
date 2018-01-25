@@ -167,6 +167,10 @@ def main():
 	if args.mode == "FA":
 		utils.cv_bench_clf(functionalData, clf, gs, output_dir, format="png", verbose=True, folds= 2)
 
+	# PPI evaluation
+	#print utils.bench_by_PPI_clf(5, scoreCalc, gs, args.output_dir, clf, verbose=False)
+	#print "I am here"
+
 	network = utils.make_predictions(scoreCalc, args.mode, clf, gs, fun_anno=functionalData)
 
 	# Predict protein interaction
