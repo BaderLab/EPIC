@@ -55,15 +55,24 @@ EPIC/test_data/WormNetV3_noZeros_no_physical_interactions.txt.zip
 ##### You can also specify the cutoff of the correlation score of co-elution profile, which means if all the correlation socres of a particular protein-protein pair is smaller than the cutoff, this pair will be removed from the dataset.The default one is set as 0.5. Assume you want a cutoff at "xx" (this value should be from 0 to 1), you can specify it as:
 -r xx
 
-##### You can also set the cutoff for machine leanring classifier. 
+##### You can also set the cutoff for machine leanring classifier, which means if the predicted protein-protein interaction has a score (assigned by the machine learning classifier) below than the cutoff, it will be treated as a false protein-protein interaction. The default is 0.5, which is commonly used for many machine learning classifier. Assume you want to set a cutoff at "##", you can do:
+-R ##
 
+##### For bottom-up proteomics, protein quantification can be determined by MS2 spectral counts. We can set a cutoff to determine the minimal MS2 spectral counts required for each protein. If a particular protein has MS2 spectral counts less than this cutoff across all fractions in a particular co-fractionation experiment, it will be removed from the input dataset. The default number here is 1, and if you want to set the cutoff at "##", you can do:  
+-e ##
+
+##### If the number of fractions that a particular protein shows up is less than 1, then the number is probably meaningless for calculating most correlation coefficients. You can set the cutoff for this value. If a proteins identified in n fractions in one co-fractionation experiment and n < cutoff, then this protein will be removed from input dataset. if you want to set your own cutoff at "##", you can do:
+-E ##
+
+##### Calculating different correlation coefficents can be a very time consuming process. After computation, a "scores.txt" will be generated and stored in your local computer, assume it is stored at the directory of "../". You can require EPIC to use the pre-calculated "scores.txt" as the input dataset and do:
+-P ../scores.txt
+
+##### Overall, you can give a comment like:
+python /EPIC/src/main.py -s "+ feature + " InputFolder/ -c /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/All.complexes.txt /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/ -o " + feature + mode + anno + " -m " + mode + " -M RF -n 7 -f " + anno  + " -F /Users/lucasminghu/Desktop/WormMap/WormNet/WormNetV3_noZeros_no_physical_interactions.txt -P /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/MSB.11110001.scores.txt
 
 
 ### Contact
 ##### If you have problems, you could contact Lucas (lucasming.huATmail.utoronto.ca) or Florian (florian.goebelsATgooglemail.com).
-
-
-command = "python /EPIC/src/main.py -s "+ feature + " InputFolder/ -c /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/All.complexes.txt /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/ -o " + feature + mode + anno + " -m " + mode + " -M RF -n 7 -f " + anno  + " -F /Users/lucasminghu/Desktop/WormMap/WormNet/WormNetV3_noZeros_no_physical_interactions.txt -P /Users/lucasminghu/Desktop/WormMap/All_FS_scores/For_selecting_best_features/MSB.11110001.scores.txt
 
 	
 	parser.add_argument("-r", "--co_elution_cutoff", type = float,help="Co-elution score cutoff. default 0.5",
