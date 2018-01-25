@@ -70,6 +70,9 @@ EPIC/test_data/WormNetV3_noZeros_no_physical_interactions.txt.zip
 ##### Overall, you can give a comment like (we take default values for many parameters):
 python /EPIC/src/main.py -s 11101001 ../InputFolder/ -c ../complexes.txt ../OutputFolder/ -o PrefixName -M RF -n 6 -m COMB -f STRING 
 
+### Output
+##### Once EPIC finishes, you will find all the output files in the file folder:
+../OutputFolder/
 
 ### Contact
 ##### If you have problems, you could contact Lucas (lucasming.huATmail.utoronto.ca) or Florian (florian.goebelsATgooglemail.com).
