@@ -130,7 +130,7 @@ class ElutionData():
 			line = line.split("\t")
 			protID = line[0]
 			counts = map(float, line[1:])
-			if len(list(set(np.where(np.array(counts) > 0.0)[0]))) >= frac_count and max(counts)>=max_count_cutoff:
+			if len(list(set(np.where(np.array(counts) > 0.0)[0]))) >= frac_count and max(counts) >= max_count_cutoff:
 				elutionMat.append(counts)
 				prot2Index[protID] = i
 				i += 1
@@ -1062,15 +1062,16 @@ class CLF_Wrapper:
 		skf = StratifiedKFold(folds)
 		probs = []
 		preds = []
+		this_targets = []
 		i = 1
 		for train, test in skf.split(data, targets):
 			print "Processing fold %i" % i
 			i += 1
 			self.fit(data[train], targets[train])
-			probas = self.predict_proba(data[test])
-			probs.extend(probas)
-			preds.extend(targets[test])
-		return self.get_metrics(probs, preds, targets)
+			probs.extend(self.predict_proba(data[test]))
+			preds.extend(self.predict(data[test]))
+			this_targets.extend(targets[test])
+		return self.get_metrics(probs, preds, this_targets)
 
 
 	# @author: Florian Goebels

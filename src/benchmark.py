@@ -1,6 +1,6 @@
 from __future__ import division
 import numpy as np
-import os, sys, re
+import os, sys, re, copy
 import CalculateCoElutionScores as CS
 import GoldStandard as GS
 import utils as utils
@@ -140,9 +140,9 @@ def cut(args):
 	feature_comb.close()
 
 def exp_comb(args):
-	FS, i, j, num_iter, input_dir, num_cores, ref_complexes, scoreF, mode, fun_anno_F, output_dir = args
+	FS, i, j, num_iter, input_dir, num_cores, ref_complexes, scoreF, mode, fun_anno_F, ppi, output_dir = args
 	i,j, num_iter, num_cores = map(int, [i, j, num_iter, num_cores])
-
+	ppi == "True"
 
 	search_engine = input_dir.split(os.path.sep)[-2]
 	def get_eData_comb(data_dir, num_iex, num_beads):
@@ -182,12 +182,11 @@ def exp_comb(args):
 	all_scores = []
 
 	for iter in range(num_iter):
+
 		rnd.seed()
 		this_eprofiles = get_eData_comb(input_dir, i, j)
 		this_eprofiles_fnames = [f.rsplit(os.sep,1)[1] for f in this_eprofiles]
 		rnd.seed(1)
-
-
 
 		print this_eprofiles_fnames
 
@@ -196,12 +195,25 @@ def exp_comb(args):
 
 		feature_comb = feature_selector([fs.name for fs in this_scores], scoreCalc, valprots=this_foundprots, elution_file_names=this_eprofiles_fnames)
 		if mode == "comb":
+
 			feature_comb.add_fun_anno(functionalData)
-		scores, head =  n_fold_cross_validation(2, ref_gs, feature_comb, clf, "%s_%i_%i" % (output_dir, i, j ), overlap = True, local = False)
+
+		scores = ""
+		head = ""
+
+		if ppi:
+			print "Running PPI cross fold"
+			ppi_ref = ref_gs.return_gold_standard_complexes(set(feature_comb.scoreCalc.ppiToIndex.keys()))
+			fmeasure, auc_pr, auc_roc = utils.bench_by_PPI_clf(10, feature_comb, ppi_ref, clf)
+			scores = "\t".join(map(str, [fmeasure, auc_pr, auc_roc]))
+			head = "\tFM\taucPR\taucROC"
+		else:
+			print "Running Cluster cross fold"
+			scores, head =  n_fold_cross_validation(2, ref_gs, feature_comb, clf, "%s_%i_%i" % (output_dir, i, j ), overlap = True, local = False)
 
 	#	head, scores = run_epic_with_feature_combinations(this_scores, ref_gs, scoreCalc, clf, output_dir, valprots=this_foundprots)
 		out_head = head
-		all_scores.append("%s\t%i\t%i\t%s\t%i\t%s" % (FS, i,j,search_engine, len(this_foundprots), scores))
+		all_scores.append("%s\t%s\t%i\t%i\t%s\t%i\t%s" % (FS, mode, i,j,search_engine, len(this_foundprots), scores))
 		print head
 		print scores
 
@@ -250,7 +262,7 @@ class feature_selector:
 				self.to_keep_score.append(i - 2)
 
 	def valid_score(self, scores):
-		return len(list(set(np.where(scores >= self.cutoff)[0])))>0
+		return len(list(set(np.where(scores > self.cutoff)[0])))>0
 
 	def filter_score(self, scores):
 		if self.valid_score(scores[self.to_keep_score]):
@@ -483,7 +495,7 @@ def ppi_fs(args):
 	print "Num valid ppis in neg: %i" % len(train_gold_complexes.negative)
 
 	# Evaluate classifier
-	evaluation_results = utils.bench_by_PPI_clf(10, test_scoreCalc, train_gold_complexes, output_dir, clf, verbose=True)
+	evaluation_results = utils.bench_by_PPI_clf(10, test_scoreCalc, train_gold_complexes, clf)
 
 	print evaluation_results
 

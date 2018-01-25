@@ -3,11 +3,9 @@ from __future__ import division
 import CalculateCoElutionScores as CS
 import GoldStandard as GS
 import utils as utils
-import benchmark as bench
 import sys
 import copy
 import os
-import numpy as np
 import argparse
 
 import warnings
@@ -61,7 +59,7 @@ def main():
 	parser.add_argument("-m", "--mode", type=str,
 						help="Run EPIC with experimental, functional, or both evidences. Values: EXP, FA, COMB, default: EXP  ",
 						default="EXP")
-	parser.add_argument("-f", "--fun_anno_source", type = str,help="Where to get functional annotaiton from. Values: STRING or GM or File, default= GM",
+	parser.add_argument("-f", "--fun_anno_source", type = str,help="Where to get functional annotaiton from. Values: STRING or GM or FILE, default= GM",
 						default="GM")
 	parser.add_argument("-F", "--fun_anno_file", type=str,
 						help="Path to File containing functional annotation. This flag needs to be set when using FILE as fun_anno_source.",
@@ -79,6 +77,9 @@ def main():
 						default="NONE")
 
 	args = parser.parse_args()
+
+	args.mode = args.mode.upper()
+	args.fun_anno_source = args.fun_anno_source.upper()
 
 	#Create feature combination
  	if args.feature_selection == "00000000":
@@ -145,15 +146,26 @@ def main():
 	print len(gs.positive)
 	print len(gs.negative)
 
+	functionalData = ""
+
 	if args.mode != "EXP":
+		print "Loading functional data"
 		functionalData = utils.get_FA_data(args.fun_anno_source, args.fun_anno_file)
 		print "Dimension of fun anno " + str(functionalData.scores.shape)
+
+
+	print "Start benchmarking"
+
+	if args.mode == "EXP":
+		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir, format="png", verbose=True, folds = 2)
+
+	if args.mode == "COMB":
 		tmp_sc = copy.deepcopy(scoreCalc)
 		tmp_sc.add_fun_anno(functionalData)
-		print "Start benchmarking"
-		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir, format="png")
-	else:
-		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir, format="png")
+		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir, format="png", verbose=True, folds= 2)
+
+	if args.mode == "FA":
+		utils.cv_bench_clf(functionalData, clf, gs, output_dir, format="png", verbose=True, folds= 2)
 
 	network = utils.make_predictions(scoreCalc, args.mode, clf, gs, fun_anno=functionalData)
 
