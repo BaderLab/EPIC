@@ -7,6 +7,8 @@ The predicted complexes Cytoscape file and elution profile files can be found at
 
 ### Installation
 ##### To install EPIC, first make sure you have Python 2.7 and scikit-learn package installed. Also one correlation score ("wcc") utilizes R to perform computation, thus R and rpy2 should be installed in your computer too.
+##### The package "wccsom" can be downloaded from https://cran.r-project.org/src/contrib/Archive/wccsom/wccsom_1.2.11.tar.gz
+##### If the directory contains this package is "/wccsom_directory", go to r, type: install.packages('/wccsom_directory/wccsom_1.2.11.tar.gz', type = 'source'). This will install the "wccsom" package.
 
 ##### First, open terminal and go to your desired directory. Then git clone at your desired directory:
 git clone https://github.com/BaderLab/EPIC
