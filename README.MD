@@ -12,10 +12,10 @@ The predicted complexes Cytoscape file and elution profile files can be found at
 ##### Actiavte your Anaconda EPIC environment: type "source activate EPIC"
 ##### Install "rpy2": type "conda install rpy2"
 ##### Install "scikit-learn": type "conda install scikit-learn"
-##### Install "kohonen": type "conda install kohonen"
 ##### Install "beautifulsoup4": type "conda install beautifulsoup4"
 ##### Install "mock": type "conda install mock"
-##### Install "R": type "conda install -c r r-kohonen"
+##### Install "R": type "conda install -c r r"
+##### Install "kohonen": type "conda install -c r r-kohonen"
 ##### Install "numpy": type "pip install numpy "
 ##### The package "wccsom" can be downloaded from https://cran.r-project.org/src/contrib/Archive/wccsom/wccsom_1.2.11.tar.gz
 ##### If the directory contains this package is "/wccsom_directory", go to r, type: install.packages('/wccsom_directory/wccsom_1.2.11.tar.gz', type = 'source'). This will install the "wccsom" package.
