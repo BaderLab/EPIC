@@ -19,7 +19,7 @@ The predicted complexes Cytoscape file and elution profile files can be found at
 ##### Install "numpy": type "pip install numpy "
 ##### The package "wccsom" can be downloaded from https://cran.r-project.org/src/contrib/Archive/wccsom/wccsom_1.2.11.tar.gz
 ##### If the directory contains this package is "/wccsom_directory", go to r, type: install.packages('/wccsom_directory/wccsom_1.2.11.tar.gz', type = 'source'). This will install the "wccsom" package.
-##### Install "matplotlib": type "python -mpip install -U pip" and then type "python -mpip install -U matplotlib"
+##### Install "matplotlib": type "python -mpip install -U matplotlib"
 ##### In case you missed any packages, you usaually can easily type "conda install missing_package_name" to install it...
 
 ##### First, open terminal and go to your desired directory. Then git clone at your desired directory:
