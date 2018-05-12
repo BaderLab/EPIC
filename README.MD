@@ -11,6 +11,7 @@ The predicted complexes Cytoscape file and elution profile files can be found at
 ##### Create a Anaconda environemnt: type "conda create -n EPIC python=2.7 anaconda"
 ##### Actiavte your Anaconda EPIC environment: type "source activate EPIC"
 ##### Install "rpy2": type "conda install rpy2"
+##### Install "requests": type "conda install requests"
 ##### Install "scikit-learn": type "conda install scikit-learn"
 ##### Install "beautifulsoup4": type "conda install beautifulsoup4"
 ##### Install "mock": type "conda install mock"
