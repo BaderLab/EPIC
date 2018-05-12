@@ -776,8 +776,8 @@ class QuickGO():
 			if "!" not in linesplit[0]:
 				prot = linesplit[1]
 				go_complex = linesplit[3]
-				print linesplit[6]
-				date = int(linesplit[6])
+				print linesplit[8]
+				date = int(linesplit[8])
 				print date
 				if date > 20170512: continue
 				# Adding prot to go map
