@@ -109,7 +109,6 @@ def main():
 	gs_clusters = []
 	if args.taxid != "":
 		print "Loading clusters from GO, CORUM, and Intact"
-		print args.taxid
 		gs_clusters.extend(utils.get_reference_from_net(args.taxid))
 
 	if args.cluster != "":
