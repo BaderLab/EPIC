@@ -762,32 +762,33 @@ class QuickGO():
 		####
 		requestURL = "https://www.ebi.ac.uk/QuickGO/services/annotation/downloadSearch?evidenceCode=ECO%3A0000353%2CECO%3A0000314%2CECO%3A0000269&goId=GO%3A0043234&taxonId="+str(self.taxid)+"&evidenceCodeUsage=descendants&evidenceCodeUsageRelationships=is_a"
 
-		r = requests.get(requestURL, headers={"Accept": "text/gpad"})
+		#r = requests.get(requestURL, headers={"Accept": "text/gpad"})
 
-		if not r.ok:
-			r.raise_for_status()
-			sys.exit()
+		#if not r.ok:
+		#	r.raise_for_status()
+		#	sys.exit()
 
-		responseBody = r.text
-		print(responseBody)
+		#responseBody = r.text
+		#print(responseBody)
 
-		sys.exit()
 		####
-		quickgoURL_FH = urllib2.urlopen(quickgoURL)
+		quickgoURL_FH = urllib2.urlopen(requestURL)
 		quickgoURL_FH.readline()
 		for line in quickgoURL_FH:
 			line = line.rstrip()
 			linesplit = line.split("\t")
-			prot = linesplit[1]
-			go_complex = linesplit[6] + ";" + linesplit[7]
-			date = int(linesplit[12])
-			if date > 20170512: continue
-			# Adding prot to go map
-			if prot not in prot_to_go_map: prot_to_go_map[prot] = set([])
-			prot_to_go_map[prot].add(go_complex)
-			# Adding go to prot map
-			if go_complex not in go_to_prot_map: go_to_prot_map[go_complex] = set([])
-			go_to_prot_map[go_complex].add(prot)
+			if "!" not in linesplit[0]:
+				prot = linesplit[1]
+				go_complex = linesplit[3]
+				date = int(linesplit[6])
+				print date
+				if date > 20170512: continue
+				# Adding prot to go map
+				if prot not in prot_to_go_map: prot_to_go_map[prot] = set([])
+				prot_to_go_map[prot].add(go_complex)
+				# Adding go to prot map
+				if go_complex not in go_to_prot_map: go_to_prot_map[go_complex] = set([])
+				go_to_prot_map[go_complex].add(prot)
 
 		quickgoURL_FH.close()
 		i = 0
