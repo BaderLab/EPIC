@@ -771,15 +771,7 @@ class QuickGO():
 		responseBody = r.text
 
 		lines = responseBody.split("\n")
-		print lines[0]
-
-		sys.exit()
-
-		####
-		quickgoURL_FH = urllib2.urlopen(requestURL)
-		quickgoURL_FH.readline()
-		for line in quickgoURL_FH:
-			line = line.rstrip()
+		for line in lines:
 			linesplit = line.split("\t")
 			if "!" not in linesplit[0]:
 				prot = linesplit[1]
@@ -794,7 +786,6 @@ class QuickGO():
 				if go_complex not in go_to_prot_map: go_to_prot_map[go_complex] = set([])
 				go_to_prot_map[go_complex].add(prot)
 
-		quickgoURL_FH.close()
 		i = 0
 		for go_complex in go_to_prot_map:
 			self.complexes.addComplex(go_complex, go_to_prot_map[go_complex])
