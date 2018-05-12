@@ -759,6 +759,8 @@ class QuickGO():
 		go_to_prot_map = {}
 		prot_to_go_map = {}
 		quickgoURL = "http://www.ebi.ac.uk/QuickGO-Old/GAnnotation?goid=GO:0043234&tax=%s&format=tsv&limit=1000000000&evidence=IDA,IPI,EXP," % (self.taxid)
+		print "quickgoURL"
+		print "the url is: ..."
 		quickgoURL_FH = urllib2.urlopen(quickgoURL)
 		quickgoURL_FH.readline()
 		for line in quickgoURL_FH:
