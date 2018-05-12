@@ -760,6 +760,7 @@ class QuickGO():
 		go_to_prot_map = {}
 		prot_to_go_map = {}
 		####
+
 		requestURL = "https://www.ebi.ac.uk/QuickGO/services/annotation/downloadSearch?evidenceCode=ECO%3A0000353%2CECO%3A0000314%2CECO%3A0000269&goId=GO%3A0043234&taxonId=%s&evidenceCodeUsage=descendants&evidenceCodeUsageRelationships=is_a"%(self.taxid)
 
 		r = requests.get(requestURL, headers={"Accept": "text/gpad"})
