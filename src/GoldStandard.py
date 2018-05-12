@@ -773,7 +773,7 @@ class QuickGO():
 		lines = responseBody.split("\n")
 		for line in lines:
 			linesplit = line.split("\t")
-			if "!" not in linesplit[0]:
+			if linesplit[0] == "UniProtKB":
 				prot = linesplit[1]
 				go_complex = linesplit[3]
 				print linesplit[8]
