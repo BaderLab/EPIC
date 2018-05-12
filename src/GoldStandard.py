@@ -752,7 +752,7 @@ class QuickGO():
 		self.name = name
 
 	# @author LUCAS HU
-	# Since QuickGO has been updated, we need to re-write this function to extract protein complexes information from GO
+	# Since QuickGO has been updated, format has been changed, we need to re-write this function to extract protein complexes information from GO
 	# reads in go flat file if gaf 20 format as protein to go annotation mapping (as dictonary)
 	# @param
 	#		taxid species for which go annotation should be read into memory
@@ -776,9 +776,7 @@ class QuickGO():
 			if linesplit[0] == "UniProtKB":
 				prot = linesplit[1]
 				go_complex = linesplit[3]
-				print linesplit[8]
 				date = int(linesplit[8])
-				print date
 				if date > 20170512: continue
 				# Adding prot to go map
 				if prot not in prot_to_go_map: prot_to_go_map[prot] = set([])
