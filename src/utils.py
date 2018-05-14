@@ -3,6 +3,8 @@ from __future__ import division
 import CalculateCoElutionScores as CS
 import numpy as np
 import sys
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
 import GoldStandard as GS
