@@ -3,6 +3,8 @@ from __future__ import division
 import CalculateCoElutionScores as CS
 import numpy as np
 import sys
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
 import GoldStandard as GS
@@ -50,7 +52,7 @@ def bench_by_PPI_clf(num_folds, scoreCalc, train_gold_complexes, clf):
 	auc_roc_sum = 0
 
 
-	# do 10_fold_cross_validation and reported the avaergae value of all measurement metrics
+	# do n_fold_cross_validation and reported the avaergae value of all measurement metrics
 	for i in range(num_folds):
 		eval_positive = positive_data[fold_size_positive * i : fold_size_positive * (i + 1),:]
 		index_rows_for_eval_positive = list(range(fold_size_positive * i , fold_size_positive * (i + 1)))

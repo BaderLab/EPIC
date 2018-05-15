@@ -3,6 +3,7 @@ from __future__ import division
 import numpy as np
 import urllib2
 from xml.dom import minidom
+import requests, sys
 import os
 import copy
 import re
@@ -750,32 +751,40 @@ class QuickGO():
 		self.get_GO_complexes()
 		self.name = name
 
-
-	# @author Florian Goebels
+	# @author LUCAS HU
+	# Since QuickGO has been updated, format has been changed, we need to re-write this function to extract protein complexes information from GO
 	# reads in go flat file if gaf 20 format as protein to go annotation mapping (as dictonary)
 	# @param
 	#		taxid species for which go annotation should be read into memory
 	def get_GO_complexes(self):
 		go_to_prot_map = {}
 		prot_to_go_map = {}
-		quickgoURL = "http://www.ebi.ac.uk/QuickGO-Old/GAnnotation?goid=GO:0043234&tax=%s&format=tsv&limit=1000000000&evidence=IDA,IPI,EXP," % (self.taxid)
-		quickgoURL_FH = urllib2.urlopen(quickgoURL)
-		quickgoURL_FH.readline()
-		for line in quickgoURL_FH:
-			line = line.rstrip()
-			linesplit = line.split("\t")
-			prot = linesplit[1]
-			go_complex = linesplit[6] + ";" + linesplit[7]
-			date = int(linesplit[12])
-			if date > 20170512: continue
-			# Adding prot to go map
-			if prot not in prot_to_go_map: prot_to_go_map[prot] = set([])
-			prot_to_go_map[prot].add(go_complex)
-			# Adding go to prot map
-			if go_complex not in go_to_prot_map: go_to_prot_map[go_complex] = set([])
-			go_to_prot_map[go_complex].add(prot)
+		####
+		requestURL = "https://www.ebi.ac.uk/QuickGO/services/annotation/downloadSearch?evidenceCode=ECO%3A0000353%2CECO%3A0000314%2CECO%3A0000269&goId=GO%3A0043234&taxonId="+str(self.taxid)+"&evidenceCodeUsage=descendants&evidenceCodeUsageRelationships=is_a"
 
-		quickgoURL_FH.close()
+		r = requests.get(requestURL, headers={"Accept": "text/gpad"})
+
+		if not r.ok:
+			r.raise_for_status()
+			sys.exit()
+
+		responseBody = r.text
+
+		lines = responseBody.split("\n")
+		for line in lines:
+			linesplit = line.split("\t")
+			if linesplit[0] == "UniProtKB":
+				prot = linesplit[1]
+				go_complex = linesplit[3]
+				date = int(linesplit[8])
+				if date > 20170512: continue
+				# Adding prot to go map
+				if prot not in prot_to_go_map: prot_to_go_map[prot] = set([])
+				prot_to_go_map[prot].add(go_complex)
+				# Adding go to prot map
+				if go_complex not in go_to_prot_map: go_to_prot_map[go_complex] = set([])
+				go_to_prot_map[go_complex].add(prot)
+
 		i = 0
 		for go_complex in go_to_prot_map:
 			self.complexes.addComplex(go_complex, go_to_prot_map[go_complex])
@@ -783,6 +792,43 @@ class QuickGO():
 
 	def get_complexes(self):
 		return self.complexes
+
+
+	# # @author Florian Goebels
+	# # reads in go flat file if gaf 20 format as protein to go annotation mapping (as dictonary)
+	# # @param
+	# #		taxid species for which go annotation should be read into memory
+	# def get_GO_complexes(self):
+	# 	go_to_prot_map = {}
+	# 	prot_to_go_map = {}
+	# 	quickgoURL = "http://www.ebi.ac.uk/QuickGO-Old/GAnnotation?goid=GO:0043234&tax=%s&format=tsv&limit=1000000000&evidence=IDA,IPI,EXP," % (self.taxid)
+	# 	print quickgoURL
+	# 	print self.taxid
+	# 	print "the url is: ..."
+	# 	quickgoURL_FH = urllib2.urlopen(quickgoURL)
+	# 	quickgoURL_FH.readline()
+	# 	for line in quickgoURL_FH:
+	# 		line = line.rstrip()
+	# 		linesplit = line.split("\t")
+	# 		prot = linesplit[1]
+	# 		go_complex = linesplit[6] + ";" + linesplit[7]
+	# 		date = int(linesplit[12])
+	# 		if date > 20170512: continue
+	# 		# Adding prot to go map
+	# 		if prot not in prot_to_go_map: prot_to_go_map[prot] = set([])
+	# 		prot_to_go_map[prot].add(go_complex)
+	# 		# Adding go to prot map
+	# 		if go_complex not in go_to_prot_map: go_to_prot_map[go_complex] = set([])
+	# 		go_to_prot_map[go_complex].add(prot)
+    #
+	# 	quickgoURL_FH.close()
+	# 	i = 0
+	# 	for go_complex in go_to_prot_map:
+	# 		self.complexes.addComplex(go_complex, go_to_prot_map[go_complex])
+	# 		i+=1
+    #
+	# def get_complexes(self):
+	# 	return self.complexes
 
 
 

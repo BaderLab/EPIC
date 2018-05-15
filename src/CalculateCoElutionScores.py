@@ -1272,10 +1272,11 @@ class STRING:
 				items = line.split()
 				if "protein1 protein2" in line:
 
+					# if changing the evidence, here is also changing
 					for evidences in items[2:6]:
 						self.scoreCalc.header.append(evidences)
 
-					self.scoreCalc.header.append(items[8])
+					#self.scoreCalc.header.append(items[8]) #if including textmining, include this line.
 
 				else:
 
@@ -1287,15 +1288,19 @@ class STRING:
 						score = items[2:]
 
 						#select the slected evidence only, we exclude "exp", "database" and "combined_score"
-						usefulScores = [None] * 5
+						#usefulScores = [None] * 5
+						#usefulScores[0:4] = score[0:4]
+						#usefulScores[4] = score[6]
+
+						#select the slected evidence only, we exclude "exp", "database" , "textmining" and "combined_score"
+						usefulScores = [None] * 4
 						usefulScores[0:4] = score[0:4]
-						usefulScores[4] = score[6]
 
 						temp_score_dict[edge] = usefulScores
 		print ("finish reading protein-protein functional evidence data from STRING")
 		fin.close()
 
-		self.scoreCalc.scores = np.zeros((len(temp_score_dict.keys()), 5))
+		self.scoreCalc.scores = np.zeros((len(temp_score_dict.keys()), len(usefulScores)))
 
 		i = 0
 		for edge in temp_score_dict:
