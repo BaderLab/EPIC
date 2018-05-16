@@ -28,35 +28,20 @@ RUN apt-get update
 RUN apt-get install --fix-missing
 RUN apt-get install -y default-jre
 
+USER $NB_USER
 
-RUN pip2 install hide_code
+#RUN pip2 install hide_code
+#RUN pip2 install jupyter_contrib_nbextensions
+
+USER root
 RUN pip2 install fileupload
-RUN pip2 install jupyter_contrib_nbextensions
-
 RUN /opt/conda/envs/python2/bin/jupyter nbextension install --py fileupload
 RUN /opt/conda/envs/python2/bin/jupyter nbextension enable --py fileupload
 
-RUN /opt/conda/envs/python2/bin/jupyter nbextension install --py hide_code
-RUN /opt/conda/envs/python2/bin/jupyter nbextension enable --py hide_code
-RUN /opt/conda/envs/python2/bin/jupyter serverextension enable --py hide_code
-RUN /opt/conda/envs/python2/bin/jupyter nbextension enable jupyter_contrib_nbextensions
-
-
-USER $NB_USER
-USER $NB_USER
-USER $NB_USER
-USER $NB_USER
-USER $NB_USER
-USER $NB_USER
-USER $NB_USER
-USER $NB_USER
-USER $NB_USER
-USER $NB_USER
-USER $NB_USER
-USER $NB_USER
+#RUN /opt/conda/envs/python2/bin/jupyter nbextension install --py hide_code
+#RUN /opt/conda/envs/python2/bin/jupyter nbextension enable --py hide_code
+#RUN /opt/conda/envs/python2/bin/jupyter nbextension enable jupyter_contrib_nbextensions
+#USER $NB_USER
 
 RUN git clone https://github.com/BaderLab/EPIC $HOME/work/EPIC
 RUN ln -s $HOME/work/EPIC/src/EPIC.ipynb $HOME/work/EPIC.ipynb
-
-
-
