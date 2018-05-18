@@ -1209,7 +1209,7 @@ class ExternalEvidence:
 # API in STRING doesn't support bulk data manipualation.
 class STRING:
 	def __init__(self, taxID, datadir = ""):
-
+		self.datadir = datadir
 		# the input is the Taxo ID for the given species
 		self.TaxID = taxID
 		# create a protein_pair_mapping dictionary, STRINGID - UniProtName
@@ -1221,7 +1221,6 @@ class STRING:
 		# loads all of Worm Gene
 		self.load_string()
 
-		self.datadir = datadir
 
 	# @auothor Lucas Ming Hu
 	# the nameMapping function can help to download name mapping file from STRING website automatically.
