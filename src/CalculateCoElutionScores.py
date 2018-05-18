@@ -1208,7 +1208,7 @@ class ExternalEvidence:
 # Make sure to leave 300MB in your disk for storing files from STRING, the script needs to download it first, since
 # API in STRING doesn't support bulk data manipualation.
 class STRING:
-	def __init__(self, taxID):
+	def __init__(self, taxID, datadir = ""):
 
 		# the input is the Taxo ID for the given species
 		self.TaxID = taxID
@@ -1221,6 +1221,8 @@ class STRING:
 		# loads all of Worm Gene
 		self.load_string()
 
+		self.datadir = datadir
+
 	# @auothor Lucas Ming Hu
 	# the nameMapping function can help to download name mapping file from STRING website automatically.
 	def nameMapping(self):
@@ -1228,6 +1230,7 @@ class STRING:
 		#this is the url for STRING_id and Uniprot_id mapping file
 		url = "http://string-db.org/download/protein.aliases.v10.5/" + str(self.TaxID) + ".protein.aliases.v10.5.txt.gz"
 		filename_protein = url.split("/")[-1]
+		if self.datadir != "": filename_protein = self.datadir + os.sep + filename_protein
 
 		with open(filename_protein, "wb") as f:
 			r = requests.get(url)
@@ -1256,6 +1259,8 @@ class STRING:
 		url2 = "http://string-db.org/download/protein.links.detailed.v10.5/" + str(
 			self.TaxID) + ".protein.links.detailed.v10.5.txt.gz"
 		filename_interaction = url2.split("/")[-1]
+		if self.datadir != "": filename_interaction = self.datadir + os.sep + filename_interaction
+
 		with open(filename_interaction, "wb") as f:
 			r = requests.get(url2)
 			f.write(r.content)

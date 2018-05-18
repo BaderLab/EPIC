@@ -223,7 +223,7 @@ def predictInteractions(scoreCalc, clf, gs, to_train=True, verbose= True):
 	out.extend(getPredictions(tmpscores[0:k,:], edges[0:k], clf))
 	return out
 
-def get_FA_data(anno_source, file=""):
+def get_FA_data(anno_source, file="", datadir = ""):
 	functionalData = ""
 	if anno_source == "GM":
 
@@ -232,7 +232,7 @@ def get_FA_data(anno_source, file=""):
 
 	elif anno_source == "STRING":
 
-		string = CS.STRING("6239")
+		string = CS.STRING("6239", datadir)
 		functionalData = string.getScoreCalc()
 
 	elif anno_source == "FILE":
@@ -260,7 +260,7 @@ def make_predictions(score_calc, mode, clf, gs, fun_anno="", verbose = False):
 
 	networks = []
 	# predicts using experiment only
-	if mode == "EXP" or mode == "BR": networks.append(predictInteractions(score_calc, clf, gs, verbose))
+	if mode == "EXP" or mode == "BR": networks.append(predictInteractions(score_calc, clf, gs, True, verbose))
 
 	#predicts using fun_anno only
 	if mode == "FA"or mode == "BR":
@@ -268,7 +268,7 @@ def make_predictions(score_calc, mode, clf, gs, fun_anno="", verbose = False):
 			# TODO make illigal argument error
 			print "if using only functional annotation for prediction functional annotation (fun_anno param != "") must not be empty"
 			sys.exit()
-		networks.append(predictInteractions(fun_anno, clf, gs, verbose))
+		networks.append(predictInteractions(fun_anno, clf, gs, True, verbose))
 
 	#predict using both functional annotation and exp
 	if mode == "COMB" or mode == "BR":
@@ -276,7 +276,7 @@ def make_predictions(score_calc, mode, clf, gs, fun_anno="", verbose = False):
 		print tmp_score_calc.scores.shape
 		tmp_score_calc.add_fun_anno(fun_anno)
 		print tmp_score_calc.scores.shape
-		networks.append(predictInteractions(tmp_score_calc, clf, gs, verbose))
+		networks.append(predictInteractions(tmp_score_calc, clf, gs, True, verbose))
 
 	# return error when no networks is predicted
 	if len(networks) == 0:
