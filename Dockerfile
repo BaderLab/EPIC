@@ -1,3 +1,8 @@
+#  How to Build the docker File
+#  cd into the EPIC folder that contains the docker File
+#  docker build --no-cache -t baderlab/bio-epic .
+#  docker push baderlab/bio-epic:latest
+
 FROM jupyter/datascience-notebook:cfddc5a3163f
 MAINTAINER Florian Goebels <florian.goebels@gmail.com>
 
@@ -35,13 +40,20 @@ USER $NB_USER
 
 USER root
 RUN pip2 install fileupload
+RUN pip2 install jupyter_contrib_nbextensions
+
 RUN /opt/conda/envs/python2/bin/jupyter nbextension install --py fileupload
 RUN /opt/conda/envs/python2/bin/jupyter nbextension enable --py fileupload
-
-#RUN /opt/conda/envs/python2/bin/jupyter nbextension install --py hide_code
-#RUN /opt/conda/envs/python2/bin/jupyter nbextension enable --py hide_code
-#RUN /opt/conda/envs/python2/bin/jupyter nbextension enable jupyter_contrib_nbextensions
-#USER $NB_USER
+RUN /opt/conda/envs/python2/bin/jupyter nbextension enable jupyter_contrib_nbextensions
+USER $NB_USER
+USER $NB_USER
+USER $NB_USER
+USER $NB_USER
 
 RUN git clone https://github.com/BaderLab/EPIC $HOME/work/EPIC
 RUN ln -s $HOME/work/EPIC/src/EPIC.ipynb $HOME/work/EPIC.ipynb
+
+RUN mkdir $HOME/work/WORM
+COPY genemania_fa_scores.txt $HOME/work/WORM/genemania_fa_scores.txt
+COPY string_fa_scores.txt $HOME/work/WORM/string_fa_scores.txt
+COPY ref_complexes.txt $HOME/work/WORM/ref_complexes.txt
