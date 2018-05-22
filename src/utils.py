@@ -373,8 +373,16 @@ def clustering_evaluation(eval_comp, pred_comp, prefix, verbose= True):
 	if verbose:
 		tmp_head = head.split("\t")
 		tmp_scores = cluster_scores.split("\t")
+		composite_score = 0
 		for i in range(len(tmp_head)):
 			print "%s\t%s" % (tmp_head[i], tmp_scores[i])
+
+			# add composite score output.
+			# added by Lucas HU, a trial function.
+			if tmp_head[i] == "mmr" or tmp_head[i] == "overlapp" or tmp_head[i] == "accuracy":
+				composite_score = composite_score + tmp_scores[i]
+
+		print "composite score is: " + str(composite_score)
 
 	return cluster_scores, head
 
