@@ -380,7 +380,7 @@ def clustering_evaluation(eval_comp, pred_comp, prefix, verbose= True):
 			# add composite score output.
 			# added by Lucas HU, a trial function.
 			if tmp_head[i] == "mmr" or tmp_head[i] == "overlapp" or tmp_head[i] == "accuracy":
-				composite_score = composite_score + int(tmp_scores[i])
+				composite_score = composite_score + float(tmp_scores[i])
 
 		print "composite score is: " + str(composite_score)
 
