@@ -384,7 +384,7 @@ def clustering_evaluation(eval_comp, pred_comp, prefix, verbose= True):
 
 		print "composite score is: " + str(composite_score)
 
-	return cluster_scores, head
+	return cluster_scores, head, composite_score
 
 def clusters_to_json(clusters, network, frac_names, eData):
 	graph = {}
