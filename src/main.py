@@ -192,7 +192,8 @@ def main():
 	# Evaluating predicted clusters
 	pred_clusters = GS.Clusters(False)
 	pred_clusters.read_file("%s.clust.txt" % (output_dir))
-	clust_scores, header = utils.clustering_evaluation(gs.complexes, pred_clusters, "", False)
+	#clust_scores, header = utils.clustering_evaluation(gs.complexes, pred_clusters, "", False)
+	clust_scores, header, composite_score = utils.clustering_evaluation(gs.complexes, pred_clusters, "", False)
 	outFH = open("%s.eval.txt" % (output_dir), "w")
 	header = header.split("\t")
 	clust_scores = clust_scores.split("\t")
