@@ -9,6 +9,7 @@ The predicted complexes Cytoscape file and elution profile files can be found at
 ##### To install EPIC, first make sure you have Python 2.7 and scikit-learn package installed. Also one correlation score ("wcc") utilizes R to perform computation, thus R and rpy2 should be installed in your computer too. 
 ##### We recommand to use Anaconda environemnt to run EPIC and install asociated librabries. Anaconda cna be downloaded from "https://conda.io/docs/user-guide/install/download.html#anaconda-or-miniconda"
 ##### Create a Anaconda environemnt: type "conda create -n EPIC python=2.7 anaconda"
+##### If the system says "conda: command not found", you probably need to type "export PATH=~/anaconda2/bin:$PATH" first
 ##### Actiavte your Anaconda EPIC environment: type "source activate EPIC"
 ##### Install "rpy2": type "conda install rpy2"
 ##### Install "requests": type "conda install requests"
