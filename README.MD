@@ -19,6 +19,7 @@ The predicted complexes Cytoscape file and elution profile files can be found at
 ##### Install "R": type "conda install -c r r"
 ##### Install "kohonen": type "conda install -c r r-kohonen"
 ##### Install "numpy": type "pip install numpy "
+##### If this step requires you to install "msgpack" or "argparse", just type "pip install msgpack" and "pip install argparse"
 ##### The package "wccsom" can be downloaded from https://cran.r-project.org/src/contrib/Archive/wccsom/wccsom_1.2.11.tar.gz
 ##### If the directory contains this package is "/wccsom_directory", go to r (type: R in command line), type: install.packages('/wccsom_directory/wccsom_1.2.11.tar.gz', type = 'source'). This will install the "wccsom" package.
 ##### (sometimes, you need to type: install.packages('class') and then type: install.packages('kohonen') in R before doing the step above.)
