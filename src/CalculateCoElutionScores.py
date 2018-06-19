@@ -157,7 +157,7 @@ class ElutionData():
 		
 
 	# @author: Florian Goebels
-	# return nurmalized co elution matrix, Normalization is based on previously published methods Pierre 2011 et al.
+	# return nurmalized co elution matrix, Normalization is based on previously published methods Pierre 2012 et al.
 	def normalizeCoEulitionMat(self):
 		self.elutionMat = normalize_fracs(self.elutionMat)
 		
