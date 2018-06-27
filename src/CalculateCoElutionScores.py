@@ -16,7 +16,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.feature_selection import RFECV
 
-from sklearn import svm
+from sklearn import svm, linear_model
 from sklearn import metrics
 import multiprocessing as mp
 
@@ -1029,7 +1029,7 @@ class CLF_Wrapper:
 		if forest:
 			print("using Random forest")
 			thisCLF = RandomForestClassifier(n_estimators=1000, n_jobs=self.num_cores, random_state=0)
-		else:	
+		else:
 			print("Using SVM")
 			thisCLF =  svm.SVC(kernel="linear", probability=True)
 		if useFeatureSelection:

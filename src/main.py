@@ -157,15 +157,15 @@ def main():
 	print "Start benchmarking"
 
 	if args.mode == "EXP":
-		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir, format="png", verbose=True, folds = 2)
+		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir, format="pdf", verbose=True, folds = 2)
 
 	if args.mode == "COMB":
 		tmp_sc = copy.deepcopy(scoreCalc)
 		tmp_sc.add_fun_anno(functionalData)
-		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir, format="png", verbose=True, folds= 2)
+		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir, format="pdf", verbose=True, folds= 2)
 
 	if args.mode == "FA":
-		utils.cv_bench_clf(functionalData, clf, gs, output_dir, format="png", verbose=True, folds= 2)
+		utils.cv_bench_clf(functionalData, clf, gs, output_dir, format="pdf", verbose=True, folds= 2)
 
 	# PPI evaluation
 	#print utils.bench_by_PPI_clf(5, scoreCalc, gs, args.output_dir, clf, verbose=False)
