@@ -127,6 +127,28 @@ class Goldstandard_from_Complexes():
 
 			training.make_pos_neg_ppis()
 			evaluation.make_pos_neg_ppis()
+
+			print ("debugging here")
+			train = training.get_goldstandard()
+			evaluate = evaluation.get_goldstandard()
+
+			len_train_positive = len(train[0])
+			len_eva_positive = len(train[0])
+			len_train_negative = len(train[1])
+			len_eva_negative = len(train[1])
+
+			len_over_positive = len(train[0] & evaluate[0])
+			len_over_negative = len(train[1] & evaluate[1])
+
+
+			print len_train_positive
+			print len_eva_positive
+			print len_over_positive
+			print len_train_negative
+			print len_eva_negative
+			print len_over_negative
+			sys.exit()
+
 			out_folds.append((training, evaluation))
 
 		return out_folds
@@ -500,12 +522,16 @@ class Clusters():
 	def read_file(self, clusterF):
 		clusterFH = open(clusterF)
 		i = 0
+		number_proteins = 0
 		for line in clusterFH:
 			line = line.rstrip()
 			prots = set(line.split("\t"))
 			self.addComplex(i, prots)
 			i+=1
+			number_proteins += len(prots)
 		clusterFH.close()
+
+		print "Average size of predicted complexes is: " + str(number_proteins/i)
 
 	def write_cuslter_file(self, outF):
 		outFH = open(outF, "w")
