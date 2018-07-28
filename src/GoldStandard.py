@@ -522,16 +522,16 @@ class Clusters():
 	def read_file(self, clusterF):
 		clusterFH = open(clusterF)
 		i = 0
-		number_proteins = 0
+		all_proteins = set()
 		for line in clusterFH:
 			line = line.rstrip()
 			prots = set(line.split("\t"))
 			self.addComplex(i, prots)
 			i+=1
-			number_proteins += len(prots)
+			all_proteins = all_proteins | prots
 		clusterFH.close()
 
-		print "Average size of predicted complexes is: " + str(number_proteins/i)
+		print "Average size of predicted complexes is: " + str(len(all_proteins)/i)
 
 	def write_cuslter_file(self, outF):
 		outFH = open(outF, "w")
