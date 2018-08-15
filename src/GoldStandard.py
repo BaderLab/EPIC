@@ -10,6 +10,7 @@ import re
 import math
 import sys
 import random as rnd
+from sklearn.cluster import KMeans
 rnd.seed(1)
 np.random.seed(1)
 
@@ -100,19 +101,85 @@ class Goldstandard_from_Complexes():
 	def get_edges(self):
 		return self.positive | self.negative
 
+	def get_overlap_scores(self, setA, setB):
+		overlap_set = setA & setB
+		overlap_score = (len(overlap_set) ** 2) / (len(setA) * len(setB))
+		return overlap_score
+
+	def get_overlap_proteins(self, setA, setB):
+		overlap_set = setA & setB
+		return overlap_set
+
 	def n_fols_split(self, num_folds, overlap="False"):
 
 		ref_cluster_ids = self.complexes.complexes.keys()
 		out_folds = []
+
+		# create a n by n zero matrix to store the binary overlap scores.
+		overlap_score_matrix = np.zeros((len(self.complexes.complexes), len(self.complexes.complexes)))
+		for i in range(len(self.complexes.complexes)):
+			for j in range(i, len(self.complexes.complexes)):
+				if i == j:
+					overlap_score_matrix[i, j] = 1
+				else:
+					overlapScore = self.get_overlap_scores(self.complexes.complexes[i], self.complexes.complexes[j])
+					overlap_score_matrix[i, j] = overlapScore
+					overlap_score_matrix[j, i] = overlapScore
+
+		estimator = KMeans(n_clusters=2) # A k-mean classifier to divide the whole set into two sets
+
+		estimator.fit(overlap_score_matrix)
+		labels = estimator.labels_
+
+		# get the index of the item in the np.array...for two groups (group 0 and group 1)...
+		itemindex_zero = (np.where(labels == 0)[0]).tolist()
+		itemindex_one = (np.where(labels == 1)[0]).tolist()
+
+		# do the while loop until the two sets are balanced ...
+		while len(itemindex_one) > len(itemindex_zero):
+
+			for individual_complex_one_index in itemindex_one:
+				temp_protein_set_one = self.complexes.complexes[individual_complex_one_index]
+				master_overlapped_set = set()
+				max_overlap = 0
+				max_index = ''
+
+				for individual_complex_zero_index in itemindex_zero:
+					temp_protein_set_zero = self.complexes.complexes[individual_complex_zero_index]
+					overlapped_set = self.get_overlap_proteins(temp_protein_set_one, temp_protein_set_zero)
+					master_overlapped_set = master_overlapped_set | overlapped_set
+
+				if max_index == '':
+					max_index = individual_complex_one_index
+					max_overlap = len(master_overlapped_set)
+				else:
+					if max_overlap < len(master_overlapped_set):
+						max_index = individual_complex_one_index
+						max_overlap = len(master_overlapped_set)
+
+			itemindex_one.remove(max_index)
+			itemindex_zero.append(max_index)
+			#print "one complex is assigned."
+
+		print "length of complex set one: " + str(len(itemindex_one))
+		print "length of complex set two: " + str(len(itemindex_zero))
+
 		# randomize clusters
-		rnd.shuffle(ref_cluster_ids)
+		#rnd.shuffle(ref_cluster_ids)
+
 		fold_size = int(len(ref_cluster_ids) / num_folds)
-		for i in range(num_folds):
+		for i in range(num_folds): # only support two_folds cross validation here...
+
 			# create training and evaluating complexes objects.
 			evaluation = Goldstandard_from_Complexes("Evaluation")
 			training = Goldstandard_from_Complexes("Training")
-			eval_clust_ids = ref_cluster_ids[fold_size * i: min(len(ref_cluster_ids), fold_size * (i + 1))]
-			train_clust_ids = list(set(ref_cluster_ids) - set(eval_clust_ids))
+
+			if i == 0:
+				eval_clust_ids = itemindex_one
+				train_clust_ids = itemindex_zero
+			else:
+				eval_clust_ids = itemindex_zero
+				train_clust_ids = itemindex_one
 
 			for train_id in train_clust_ids: training.complexes.addComplex(train_id, self.complexes.complexes[train_id])
 			for eval_id in eval_clust_ids: evaluation.complexes.addComplex(eval_id, self.complexes.complexes[eval_id])
@@ -152,6 +219,62 @@ class Goldstandard_from_Complexes():
 			out_folds.append((training, evaluation))
 
 		return out_folds
+
+	# def n_fols_split(self, num_folds, overlap="False"):
+    #
+	# 	ref_cluster_ids = self.complexes.complexes.keys()
+	# 	out_folds = []
+    #
+    #
+	# 	# randomize clusters
+	# 	rnd.shuffle(ref_cluster_ids)
+    #
+	# 	fold_size = int(len(ref_cluster_ids) / num_folds)
+	# 	for i in range(num_folds):
+	# 		# create training and evaluating complexes objects.
+	# 		evaluation = Goldstandard_from_Complexes("Evaluation")
+	# 		training = Goldstandard_from_Complexes("Training")
+	# 		eval_clust_ids = ref_cluster_ids[fold_size * i: min(len(ref_cluster_ids), fold_size * (i + 1))]
+	# 		train_clust_ids = list(set(ref_cluster_ids) - set(eval_clust_ids))
+    #
+	# 		for train_id in train_clust_ids: training.complexes.addComplex(train_id, self.complexes.complexes[train_id])
+	# 		for eval_id in eval_clust_ids: evaluation.complexes.addComplex(eval_id, self.complexes.complexes[eval_id])
+    #
+	# 		all_eval_prots = evaluation.complexes.get_all_prots()
+    #
+    #
+	# 		if not overlap:
+	# 			for comp in training.complexes.complexes:
+	# 				training.complexes.complexes[comp] = training.complexes.complexes[comp] - all_eval_prots
+    #
+    #
+	# 		training.make_pos_neg_ppis()
+	# 		evaluation.make_pos_neg_ppis()
+    #
+	# 		print ("debugging here")
+	# 		train = training.get_goldstandard()
+	# 		evaluate = evaluation.get_goldstandard()
+    #
+	# 		len_train_positive = len(train[0])
+	# 		len_eva_positive = len(train[0])
+	# 		len_train_negative = len(train[1])
+	# 		len_eva_negative = len(train[1])
+    #
+	# 		len_over_positive = len(train[0] & evaluate[0])
+	# 		len_over_negative = len(train[1] & evaluate[1])
+    #
+    #
+	# 		print len_train_positive
+	# 		print len_eva_positive
+	# 		print len_over_positive
+	# 		print len_train_negative
+	# 		print len_eva_negative
+	# 		print len_over_negative
+	# 		sys.exit()
+    #
+	# 		out_folds.append((training, evaluation))
+    #
+	# 	return out_folds
 
 	#new function added by Lucas HU to split into n-fold for n-fold cross-validation.
 	#just a trial version to test if it works.
@@ -508,6 +631,18 @@ class Clusters():
 	def get_complexes(self):
 		return self.complexes
 
+	# added by Lucas Hu, to compare predicted complexes with gold standard complexes
+	# to calculate sensitivity...
+	def get_overlapped_complexes_set(self, another_complex_set): # complex_set is a Clusters project.
+		Cluster_dict_another = another_complex_set.get_complexes()
+		overlapped_complex_dic = {}
+		for complex_another in Cluster_dict_another:
+			for complex in self.complexes:
+				if self.overlap(self.complexes[complex], Cluster_dict_another[complex_another]) >= 0.2:
+					overlapped_complex_dic[complex_another] = Cluster_dict_another[complex_another]
+
+		return overlapped_complex_dic
+
 	def get_all_prots(self):
 		out = set()
 		for comp in self.complexes:
@@ -522,16 +657,16 @@ class Clusters():
 	def read_file(self, clusterF):
 		clusterFH = open(clusterF)
 		i = 0
-		all_proteins = set()
+		all_proteins_count = 0
 		for line in clusterFH:
 			line = line.rstrip()
 			prots = set(line.split("\t"))
 			self.addComplex(i, prots)
 			i+=1
-			all_proteins = all_proteins | prots
+			all_proteins_count += len(prots)
 		clusterFH.close()
 
-		print "Average size of predicted complexes is: " + str(len(all_proteins)/i)
+		print "Average size of predicted complexes is: " + str((all_proteins_count)/i)
 
 	def write_cuslter_file(self, outF):
 		outFH = open(outF, "w")
