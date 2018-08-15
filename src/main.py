@@ -192,6 +192,8 @@ def main():
 	# Evaluating predicted clusters
 	pred_clusters = GS.Clusters(False)
 	pred_clusters.read_file("%s.clust.txt" % (output_dir))
+	overlapped_complexes_with_reference = gs.get_complexes().get_overlapped_complexes_set(pred_clusters)
+	print "# of complexes in reference dataset: " + str(len(overlapped_complexes_with_reference))
 	#clust_scores, header = utils.clustering_evaluation(gs.complexes, pred_clusters, "", False)
 	clust_scores, header, composite_score = utils.clustering_evaluation(gs.complexes, pred_clusters, "", False)
 	outFH = open("%s.eval.txt" % (output_dir), "w")
