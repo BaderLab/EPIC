@@ -125,15 +125,19 @@ class ElutionData():
 		elutionMat = []
 		prot2Index = {}
 		removed = 0
+		pro_list = []
 		for line in elutionProfileFH:
 			line = line.rstrip()
 			line = line.split("\t")
 			protID = line[0]
 			counts = map(float, line[1:])
-			if len(list(set(np.where(np.array(counts) > 0.0)[0]))) >= frac_count and max(counts) >= max_count_cutoff:
+			counts_array = np.array(counts)
+			counts_array[np.isnan(counts_array)] = 0.0
+			if len(list(set(np.where(np.array(counts_array) > 0.0)[0]))) >= frac_count and max(counts_array) >= max_count_cutoff:
 				elutionMat.append(counts)
 				prot2Index[protID] = i
 				i += 1
+				pro_list.append(protID)
 			else:
 				removed += 1
 		print "finished processing %s\n removed %i (%.2f, total: %i, after filtering: %i) proteins found in less than %i fraction" % (elutionProfileF, removed, removed/(removed + len(prot2Index)), removed + len(prot2Index), len(prot2Index), frac_count)
@@ -213,12 +217,13 @@ def arr_norm(arr, axis=0):
 	return np.asarray(np.nan_to_num(mat / np.sum(mat, axis)))
 
 def normalize_fracs(arr, norm_rows=True, norm_cols=True):
-	if norm_cols:
+	#if norm_cols:
 		# Normalize columns first--seems correct for overall elution profile if
 		# you're calculating correlation-type scores
-		arr = arr_norm(arr, 0)
-	if norm_rows:
-		arr = arr_norm(arr, 1)
+		#arr = arr_norm(arr, 0)
+	#if norm_rows:
+		#arr = arr_norm(arr, 1)
+	print "normalization is here"
 	return arr
 
 
