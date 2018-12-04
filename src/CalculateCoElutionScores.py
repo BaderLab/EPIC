@@ -217,13 +217,12 @@ def arr_norm(arr, axis=0):
 	return np.asarray(np.nan_to_num(mat / np.sum(mat, axis)))
 
 def normalize_fracs(arr, norm_rows=True, norm_cols=True):
-	#if norm_cols:
+	if norm_cols:
 		# Normalize columns first--seems correct for overall elution profile if
 		# you're calculating correlation-type scores
-		#arr = arr_norm(arr, 0)
-	#if norm_rows:
-		#arr = arr_norm(arr, 1)
-	print "normalization is here"
+		arr = arr_norm(arr, 0)
+	if norm_rows:
+		arr = arr_norm(arr, 1)
 	return arr
 
 
