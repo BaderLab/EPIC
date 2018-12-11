@@ -130,6 +130,9 @@ def main():
 			print >> refFH, "%s\t%s" % (",".join(comp), ",".join(gs.complexes.complexes[comp]))
 	refFH.close()
 
+	###
+	gs_for_functional_benchmark = copy.deepcopy(gs)
+	###
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, elution_datas, output_dir + ".scores.txt", num_cores=args.num_cores, cutoff= args.co_elution_cutoff)
 	if args.precalcualted_score_file == "NONE":
 		scoreCalc.calculate_coelutionDatas(gs)
@@ -165,7 +168,7 @@ def main():
 		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir, format="pdf", verbose=True, folds= 2)
 
 	if args.mode == "FA":
-		utils.cv_bench_clf(functionalData, clf, gs, output_dir, format="pdf", verbose=True, folds= 2)
+		utils.cv_bench_clf(functionalData, clf, gs_for_functional_benchmark, output_dir, format="pdf", verbose=True, folds= 2)
 
 	# PPI evaluation
 	#print utils.bench_by_PPI_clf(5, scoreCalc, gs, args.output_dir, clf, verbose=False)
