@@ -113,11 +113,16 @@ def main():
 
 	if args.cluster != "":
 		print "Loading complexes from file"
-		gs_clusters.append(GS.FileClusters(args.cluster, foundprots))
+		if args.mode == "FA":
+			gs_clusters.append(GS.FileClusters(args.cluster, "all"))
+		else:
+			gs_clusters.append(GS.FileClusters(args.cluster, foundprots))
 
 	if args.ppi != "":
 		print "Reading PPI file from %s" % args.reference
 		gs = Goldstandard_from_PPI_File(args.ppi, foundprots)
+
+
 
 	print gs_clusters
 	if 	len(gs_clusters)>0:
@@ -130,9 +135,6 @@ def main():
 			print >> refFH, "%s\t%s" % (",".join(comp), ",".join(gs.complexes.complexes[comp]))
 	refFH.close()
 
-	###
-	gs_for_functional_benchmark = copy.deepcopy(gs)
-	###
 	scoreCalc = CS.CalculateCoElutionScores(this_scores, elution_datas, output_dir + ".scores.txt", num_cores=args.num_cores, cutoff= args.co_elution_cutoff)
 	if args.precalcualted_score_file == "NONE":
 		scoreCalc.calculate_coelutionDatas(gs)
@@ -149,7 +151,6 @@ def main():
 	print len(gs.positive)
 	print len(gs.negative)
 
-	functionalData = ""
 
 	if args.mode != "EXP":
 		print "Loading functional data"
@@ -160,15 +161,15 @@ def main():
 	print "Start benchmarking"
 
 	if args.mode == "EXP":
-		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir, format="pdf", verbose=True, folds = 2)
+		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir, format="pdf", verbose=True, folds = 5)
 
 	if args.mode == "COMB":
 		tmp_sc = copy.deepcopy(scoreCalc)
 		tmp_sc.add_fun_anno(functionalData)
-		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir, format="pdf", verbose=True, folds= 2)
+		utils.cv_bench_clf(tmp_sc, clf, gs, output_dir, format="pdf", verbose=True, folds= 5)
 
 	if args.mode == "FA":
-		utils.cv_bench_clf(functionalData, clf, gs_for_functional_benchmark, output_dir, format="pdf", verbose=True, folds= 2)
+		utils.cv_bench_clf(functionalData, clf, gs, output_dir, format="pdf", verbose=True, folds= 5)
 
 	# PPI evaluation
 	#print utils.bench_by_PPI_clf(5, scoreCalc, gs, args.output_dir, clf, verbose=False)
@@ -213,4 +214,4 @@ if __name__ == "__main__":
 	except KeyboardInterrupt:
 		pass
 
-	#11000100 (MI, Bayes, PCC+N)
+#11000100 (MI, Bayes, PCC+N)

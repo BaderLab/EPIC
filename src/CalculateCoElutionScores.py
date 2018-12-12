@@ -748,6 +748,17 @@ class CalculateCoElutionScores():
 		for eD in self.elutionData:
 			for score in self.features:
 				self.header.append("%s.%s" % (eD.name, score.name))
+	###
+	def get_val_proteins(self):
+		val_proteins = set()
+
+		for items in self.ppiToIndex.keys():
+			proteins = items.split("\t")
+			val_proteins.add(proteins[0])
+			val_proteins.add(proteins[1])
+
+		return val_proteins
+	###
 
 	def getShape(self):
 		return self.scores.shape

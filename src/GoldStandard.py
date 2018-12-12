@@ -260,14 +260,33 @@ class Goldstandard_from_Complexes():
 			len_over_positive = len(train[0] & evaluate[0])
 			len_over_negative = len(train[1] & evaluate[1])
 
+			print len_train_positive
+			print len_eva_positive
+			print len_train_negative
+			print len_eva_negative
+
 
 			print "number of train and evaluation PPIs:"
 			print len_train_positive + len_train_negative
 			print "number of overlapped PPIs:"
 			print len_over_positive + len_over_negative
-			print "I am here"
 
 			out_folds.append((training, evaluation))
+
+			F1 = open("fold1_complexes.txt", "w")
+			F2 = open("fold2_complexes.txt", "w")
+
+			for item, values in training.get_complexes().get_complexes().iteritems():
+				F1.write(str(item) + "\t" + "\t".join(list(values)))
+				F1.write("\n")
+
+			for item, values in evaluation.get_complexes().get_complexes().iteritems():
+				F2.write(str(item) + "\t" + "\t".join(list(values)))
+				F2.write("\n")
+
+			F1.close()
+			F2.close()
+
 
 		return out_folds
 
@@ -561,7 +580,6 @@ class Goldstandard_from_Complexes():
 	# this method combines who CalculateCoElutionScores objects onto one by comping the toMerge object into the self object
 	# @Param:
 	#		CalculateCoElutionScores toMerge a second CalculateCoElutionScores which should be combined with self object
-	#		mode donates how to merge the sets, left (l), right (r), union (u), or  (i)
 	def rebalance(self, ratio = 5):
 		if len(self.positive) * self.ratio > len(self.negative):
 			self.positive = set(rnd.sample(self.positive, int(len(self.negative) / self.ratio)))

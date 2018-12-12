@@ -50,6 +50,8 @@ def bench_by_PPI_clf(num_folds, scoreCalc, train_gold_complexes, clf):
 	fmeasure_sum = 0
 	auc_pr_sum = 0
 	auc_roc_sum = 0
+	precision_sum = 0
+	recall_sum = 0
 
 
 	# do n_fold_cross_validation and reported the avaergae value of all measurement metrics
@@ -82,6 +84,8 @@ def bench_by_PPI_clf(num_folds, scoreCalc, train_gold_complexes, clf):
 		fmeasure_sum = fmeasure_sum + fmeasure
 		auc_pr_sum = auc_pr_sum + auc_pr
 		auc_roc_sum = auc_roc_sum + auc_roc
+		precision_sum = precision_sum + precision
+		recall_sum = recall_sum + recall
 
 		recall_vals, precision_vals, threshold = curve_pr
 		threshold = np.append(threshold, 1)
@@ -89,8 +93,10 @@ def bench_by_PPI_clf(num_folds, scoreCalc, train_gold_complexes, clf):
 	fmeasure_average = fmeasure_sum / num_folds
 	auc_pr_average = auc_pr_sum / num_folds
 	auc_roc_average = auc_roc_sum / num_folds
+	precision_avergae = precision/ num_folds
+	recall_average = recall_sum/ num_folds
 
-	avergae_list = [fmeasure_average, auc_pr_average, auc_roc_average]
+	avergae_list = [precision_avergae, recall_average, fmeasure_average, auc_pr_average, auc_roc_average]
 
 	return avergae_list
 
@@ -105,10 +111,10 @@ def cv_bench_clf(scoreCalc, clf, gs, outDir, verbose=False, format="pdf", folds 
 	rownames = ["Precision", "Recall", "F-Measure", "AUC PR", "AUC ROC"]
 	threshold = np.append(threshold, 1)
 	plotCurves([("Precision", (precision_vals, threshold)), ("Recall", (recall_vals, threshold))], outDir + ".cutoff." + format, "Cutoff", "Evaluation metric score")
-	if verbose:
-		val_scores = [precision, recall, fmeasure, auc_pr, auc_roc]
-		for i in range(len(rownames)):
-			print str(rownames[i]) + "\t" + str(val_scores[i])
+	#if verbose:
+		#val_scores = [precision, recall, fmeasure, auc_pr, auc_roc]
+		#for i in range(len(rownames)):
+			#print str(rownames[i]) + "\t" + str(val_scores[i])
 	return rownames, [precision, recall, fmeasure, auc_pr, auc_roc]
 
 def bench_clf(scoreCalc, train, eval, clf, outDir, verbose=False, format = "pdf"):
