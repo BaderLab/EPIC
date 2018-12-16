@@ -1081,7 +1081,7 @@ class CLF_Wrapper:
 		i = 1
 		for train, test in skf.split(data, targets):
 			#print "Processing fold %i" % i
-			print "Processing fold data..."
+			print "Processing data..."
 			i += 1
 			self.fit(data[train], targets[train])
 			probs.extend(self.predict_proba(data[test]))
