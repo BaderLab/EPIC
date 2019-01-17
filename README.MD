@@ -69,6 +69,7 @@ EPIC/test_data/elution_profiles/
 
 ##### As mentioned above, EPIC can integrate functional evidence data with experimental data to generate the final protein-protein interaction dataset. EPIC can automatically download functional evidence data from GeneMANIA and STRING databases. You can also specify your own curated functional evidence dataset. "GM" stands for GeneMANIA database, "STRING" stands for STRING database and "FILE" stands for the user curated database. For example, you want to use STRING as functional evidence, you can use the following command:
 -f STRING
+(Notice that STRING and GEMANIA only have limited number of species, an error will be reported if the species is not in these databases.)
 ##### If you you use your own curated functional evidence data, you should also specify the directory of the functional evidence data file. Assume the functional evidence data file is "fun_anno_file.txt" and it is stored in the file folder "../", you can use the following parameter:
 -f FILE -F ../fun_anno_file.txt
 ##### There is an example file that shows the format of "fun_anno_file.txt" at:
