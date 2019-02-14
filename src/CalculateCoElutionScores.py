@@ -15,6 +15,7 @@ from sklearn.model_selection import  cross_val_predict
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.feature_selection import RFECV
+import xml.etree.ElementTree as ET
 
 from sklearn import svm, linear_model
 from sklearn import metrics
@@ -1228,6 +1229,7 @@ class STRING:
 		self.datadir = datadir
 		# the input is the Taxo ID for the given species
 		self.TaxID = taxID
+		self.version = self.get_current_string_ver()
 		# create a protein_pair_mapping dictionary, STRINGID - UniProtName
 		self.nameMappingDict = {}
 		# create a geneName mapping dictionary based on Uniprot website database
@@ -1238,12 +1240,25 @@ class STRING:
 		self.load_string()
 
 
+	def get_current_string_ver(self):
+
+		request_url = 'https://string-db.org/api/xml/version'
+		try:
+			response = urllib2.urlopen(request_url)
+			response = ET.parse(response)
+			return response.getroot()[0][0].text
+		except urllib2.HTTPError as err:
+			error_message = err.read()
+			print error_message
+			sys.exit()
+
+
 	# @auothor Lucas Ming Hu
 	# the nameMapping function can help to download name mapping file from STRING website automatically.
 	def nameMapping(self):
 
 		#this is the url for STRING_id and Uniprot_id mapping file
-		url = "http://string-db.org/download/protein.aliases.v10.5/" + str(self.TaxID) + ".protein.aliases.v10.5.txt.gz"
+		url = "https://stringdb-static.org/download/protein.aliases.v"+ self.version + "/" + str(self.TaxID) + ".protein.aliases.v"+ self.version + ".txt.gz"
 		filename_protein = url.split("/")[-1]
 		if self.datadir != "": filename_protein = self.datadir + os.sep + filename_protein
 
@@ -1253,7 +1268,6 @@ class STRING:
 		f.close()
 
 		self.nameMappingDict = {}
-
 		# read the local .gz file and store STRING_id and its uniprot_id to a dictionary
 		with gzip.open(filename_protein, 'r') as fin:
 			for line in fin:
@@ -1271,11 +1285,10 @@ class STRING:
 	def load_string(self):
 
 		# download the interaction data file from internet as compressed .gz file...
-		url2 = "http://string-db.org/download/protein.links.detailed.v10.5/" + str(
-			self.TaxID) + ".protein.links.detailed.v10.5.txt.gz"
+		url2 = "https://stringdb-static.org/download/protein.links.detailed.v"+ self.version + "/" + str(
+			self.TaxID) + ".protein.links.detailed.v"+ self.version + ".txt.gz"
 		filename_interaction = url2.split("/")[-1]
 		if self.datadir != "": filename_interaction = self.datadir + os.sep + filename_interaction
-
 		with open(filename_interaction, "wb") as f:
 			r = requests.get(url2)
 			f.write(r.content)
