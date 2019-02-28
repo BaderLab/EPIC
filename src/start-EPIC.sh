@@ -3,7 +3,7 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-echo "Type in name of network interface, followed by [ENTER]:"
+echo "Type in name of network interface, followed by [ENTER]:(leave empty for default: en0)"
 
 read neti
 
