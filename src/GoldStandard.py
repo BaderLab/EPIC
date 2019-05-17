@@ -113,7 +113,9 @@ class Goldstandard_from_Complexes():
 	# a Funtion written by Lucas Hu,
 	# to minimize the overlapped of the splitted complexes set.
 	# only support num_folds = 2
-	def n_fols_split(self, num_folds, overlap="False"):
+	# once the two sets of complexes is done, we can further remove overlapped complexes by pruning
+	# number_pruning determines how many mores times pruning you wanna do.
+	def n_fols_split(self, num_folds, number_pruning, overlap="False"):
 
 		ref_cluster_ids = self.complexes.complexes.keys()
 		out_folds = []
@@ -125,7 +127,8 @@ class Goldstandard_from_Complexes():
 				if i == j:
 					overlap_score_matrix[i, j] = 1
 				else:
-					overlapScore = self.get_overlap_scores(self.complexes.complexes[i], self.complexes.complexes[j])
+					#overlapScore = self.get_overlap_scores(self.complexes.complexes[i], self.complexes.complexes[j])
+					overlapScore = self.get_overlap_scores(self.complexes.complexes[ref_cluster_ids[i]], self.complexes.complexes[ref_cluster_ids[j]])
 					overlap_score_matrix[i, j] = overlapScore
 					overlap_score_matrix[j, i] = overlapScore
 
@@ -135,20 +138,28 @@ class Goldstandard_from_Complexes():
 		labels = estimator.labels_
 
 		# get the index of the item in the np.array...for two groups (group 0 and group 1)...
-		itemindex_zero = (np.where(labels == 0)[0]).tolist()
-		itemindex_one = (np.where(labels == 1)[0]).tolist()
+		temp_list1 = (np.where(labels == 0)[0]).tolist()
+		temp_list2 = (np.where(labels == 1)[0]).tolist()
+
+		# the length of itemindex_zero is always bigger than itemindex_one...
+		if len(temp_list1) >= len(temp_list2):
+			itemindex_zero = temp_list2
+			itemindex_one = temp_list1
+		else:
+			itemindex_zero = temp_list1
+			itemindex_one = temp_list2
 
 		# do the while loop until the two sets are balanced ...
 		while len(itemindex_one) > len(itemindex_zero):
 
 			for individual_complex_one_index in itemindex_one:
-				temp_protein_set_one = self.complexes.complexes[individual_complex_one_index]
+				temp_protein_set_one = self.complexes.complexes[ref_cluster_ids[individual_complex_one_index]]
 				master_overlapped_set = set()
 				max_overlap = 0
 				max_index = ''
 
 				for individual_complex_zero_index in itemindex_zero:
-					temp_protein_set_zero = self.complexes.complexes[individual_complex_zero_index]
+					temp_protein_set_zero = self.complexes.complexes[ref_cluster_ids[individual_complex_zero_index]]
 					overlapped_set = self.get_overlap_proteins(temp_protein_set_one, temp_protein_set_zero)
 					master_overlapped_set = master_overlapped_set | overlapped_set
 
@@ -163,21 +174,22 @@ class Goldstandard_from_Complexes():
 			itemindex_one.remove(max_index)
 			itemindex_zero.append(max_index)
 
+
 		# further remove overlapped complexes...
 		# identify the most overlapped complex from set1, remove...
-		# idenifty the most overlapped complexes from set2, remove...
+		# idenifty the most overlapped complex from set2, remove...
 		# repeat for n rounds...
 		round = 0
-		while round < 10:
+		while round < number_pruning:
 
 			for individual_complex_one_index in itemindex_one:
-				temp_protein_set_one = self.complexes.complexes[individual_complex_one_index]
+				temp_protein_set_one = self.complexes.complexes[ref_cluster_ids[individual_complex_one_index]]
 				master_overlapped_set = set()
 				max_overlap = 0
 				max_index = ''
 
 				for individual_complex_zero_index in itemindex_zero:
-					temp_protein_set_zero = self.complexes.complexes[individual_complex_zero_index]
+					temp_protein_set_zero = self.complexes.complexes[ref_cluster_ids[individual_complex_zero_index]]
 					overlapped_set = self.get_overlap_proteins(temp_protein_set_one, temp_protein_set_zero)
 					master_overlapped_set = master_overlapped_set | overlapped_set
 
@@ -193,13 +205,13 @@ class Goldstandard_from_Complexes():
 
 
 			for individual_complex_one_index in itemindex_zero:
-				temp_protein_set_one = self.complexes.complexes[individual_complex_one_index]
+				temp_protein_set_one = self.complexes.complexes[ref_cluster_ids[individual_complex_one_index]]
 				master_overlapped_set = set()
 				max_overlap = 0
 				max_index = ''
 
 				for individual_complex_zero_index in itemindex_zero:
-					temp_protein_set_zero = self.complexes.complexes[individual_complex_zero_index]
+					temp_protein_set_zero = self.complexes.complexes[ref_cluster_ids[individual_complex_zero_index]]
 					overlapped_set = self.get_overlap_proteins(temp_protein_set_one, temp_protein_set_zero)
 					master_overlapped_set = master_overlapped_set | overlapped_set
 
@@ -235,8 +247,8 @@ class Goldstandard_from_Complexes():
 				eval_clust_ids = itemindex_zero
 				train_clust_ids = itemindex_one
 
-			for train_id in train_clust_ids: training.complexes.addComplex(train_id, self.complexes.complexes[train_id])
-			for eval_id in eval_clust_ids: evaluation.complexes.addComplex(eval_id, self.complexes.complexes[eval_id])
+			for train_id in train_clust_ids: training.complexes.addComplex(train_id, self.complexes.complexes[ref_cluster_ids[train_id]])
+			for eval_id in eval_clust_ids: evaluation.complexes.addComplex(eval_id, self.complexes.complexes[ref_cluster_ids[eval_id]])
 
 			all_eval_prots = evaluation.complexes.get_all_prots()
 
