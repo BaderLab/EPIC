@@ -1,6 +1,7 @@
 # WormMap
 The predicted complexes Cytoscape file and elution profile files can be found at https://github.com/BaderLab/EPIC/tree/master/WormMap
 (Make sure to update your Cytoscape software version to 3.6.0; elution profile files can be opened in JavaTreeView software.)
+ELution files could be found at https://github.com/LucasHu/Worm-co-frac-data
 
 # EPIC
 ## Elution Profile-Based Inference of Protein Complexes
