@@ -102,7 +102,7 @@ def bench_by_PPI_clf(num_folds, scoreCalc, train_gold_complexes, clf):
 
 
 
-def cv_bench_clf(scoreCalc, clf, gs, outDir, verbose=False, format="pdf", folds = 10):
+def cv_bench_clf(scoreCalc, clf, gs, outDir, verbose=False, format="pdf", folds = 5):
 	_, data, targets = scoreCalc.toSklearnData(gs)
 	precision, recall, fmeasure, auc_pr, auc_roc, curve_pr, curve_roc = clf.cv_eval(data, targets, folds)
 	plotCurves([("", curve_roc)], outDir + ".roc." + format, "False Positive rate", "True Positive Rate")
