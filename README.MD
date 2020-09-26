@@ -46,7 +46,7 @@ EPIC/test_data/elution_profiles/
 -c ../complexes.txt
 ##### The second way is to automatically download protein complexes from public databases (CORUM, IntAct and GO). In this case, you only need to specify the Taxonomy ID for the species you are studying on using "-t". For instnace, for C. elegans, we use:
 -t 6239
-##### (You should only use one of the above two options, that means, don't use -c and -t at the same time.)
+##### (When you use both of the above two options, the reference will come from your input reference complexes file rather than curating from the Internet.)
 
  
 ##### Specify the directory of storing output files.
