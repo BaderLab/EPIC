@@ -229,16 +229,17 @@ def predictInteractions(scoreCalc, clf, gs, to_train=True, verbose= True):
 	out.extend(getPredictions(tmpscores[0:k,:], edges[0:k], clf))
 	return out
 
-def get_FA_data(anno_source, file="", datadir = ""):
+def get_FA_data(anno_source, taxid, file="", datadir = ""):
 	functionalData = ""
 	if anno_source == "GM":
 
-		genemania = CS.Genemania("6239")
+		genemania = CS.Genemania(taxid)
+		#genemania = CS.Genemania("6239")
 		functionalData = genemania.getScoreCalc()
 
 	elif anno_source == "STRING":
 
-		string = CS.STRING("6239", datadir)
+		string = CS.STRING(taxid, datadir)
 		functionalData = string.getScoreCalc()
 
 	elif anno_source == "FILE":
@@ -541,7 +542,7 @@ def prep_network_for_cy(nodes, edges):
 
 # a fucntion added by Lucas HU to test the stability of prediction using n-fold cross validation
 # focus on the PPI level, and see if each time predicetd similar set of PPIs, we use n_fold of data to do this...
-def stability_evaluation(n_fold, all_gs, scoreCalc, clf, output_dir, mode, anno_source, anno_F):
+def stability_evaluation(n_fold, all_gs, scoreCalc, clf, output_dir, mode, anno_source, taxid, anno_F):
 
 	tmp_train_eval_container = (all_gs.split_into_n_fold2(n_fold, set(scoreCalc.ppiToIndex.keys()))["turpleKey"])
 
@@ -569,7 +570,7 @@ def stability_evaluation(n_fold, all_gs, scoreCalc, clf, output_dir, mode, anno_
 
 		functionalData = ""
 		if mode != "exp":
-			functionalData = get_FA_data(anno_source, anno_F)
+			functionalData = get_FA_data(anno_source, taxid, anno_F)
 			print functionalData.scores.shape
 
 		print "the functional evidence data shape is: "

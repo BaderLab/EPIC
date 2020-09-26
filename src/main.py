@@ -107,7 +107,7 @@ def main():
 		sys.exit()
 
 	gs_clusters = []
-	if args.taxid != "":
+	if (args.taxid != "" and args.cluster == "" and args.ppi == ""):
 		print "Loading clusters from GO, CORUM, and Intact"
 		gs_clusters.extend(utils.get_reference_from_net(args.taxid))
 
@@ -154,7 +154,7 @@ def main():
 
 	if args.mode != "EXP":
 		print "Loading functional data"
-		functionalData = utils.get_FA_data(args.fun_anno_source, args.fun_anno_file)
+		functionalData = utils.get_FA_data(args.fun_anno_source, args.taxid, args.fun_anno_file)
 		print "Dimension of fun anno " + str(functionalData.scores.shape)
 
 

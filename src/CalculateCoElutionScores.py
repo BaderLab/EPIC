@@ -565,6 +565,7 @@ class Genemania:
 	
 		#urlbase = 'http://genemania.org/data/current'
 		urlbase = 'http://genemania.org/data/archive/2014-10-15/'
+		print (taxoIDspeciesDic[self.taxoID])
 		speciesURL = os.path.join(urlbase, taxoIDspeciesDic[self.taxoID])
 		r = urllib.urlopen(speciesURL).read()
 #		soup = BeautifulSoup(r)
