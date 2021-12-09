@@ -100,3 +100,5 @@ python /EPIC/src/main.py -s 11101001 ../InputFolder/ -c ../complexes.txt ../Outp
 
 ### Contact
 ##### If you have problems, you could contact Lucas (lucasming.huATmail.utoronto.ca) or Florian (florian.goebelsATgooglemail.com).
+
+##### Some user informed me, he needed RTools installed in his computer. The user has to install the appropriate version at https://cran.r-project.org/bin/windows/Rtools/history.html depending on the R version it has. But you might already installed RTools if you are an active R user, but be safe to check.
