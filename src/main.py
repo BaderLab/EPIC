@@ -172,7 +172,7 @@ def main():
 		utils.cv_bench_clf(functionalData, clf, gs, output_dir, format="pdf", verbose=True, folds= 5)
 
 	# PPI evaluation
-	print utils.cv_bench_clf(scoreCalc, clf, gs, args.output_dir, verbose=False, format="pdf", folds=5)
+	print(utils.cv_bench_clf(scoreCalc, clf, gs, output_dir, verbose=False, format="pdf", folds=5))
 	#print "I am here"
 
 	network = utils.make_predictions(scoreCalc, args.mode, clf, gs, fun_anno=functionalData)
