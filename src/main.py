@@ -82,50 +82,50 @@ def main():
 	args.fun_anno_source = args.fun_anno_source.upper()
 
 	#Create feature combination
- 	if args.feature_selection == "00000000":
-		print "Select at least one feature"
+	if args.feature_selection == "00000000":
+		print("Select at least one feature")
 		sys.exit()
 
 	this_scores = utils.get_fs_comb(args.feature_selection)
-	print "\t".join([fs.name for fs in this_scores])
+	print("\t".join([fs.name for fs in this_scores]))
 
 	# Initialize CLF
- 	use_rf = args.classifier == "RF"
+	use_rf = args.classifier == "RF"
 	clf = CS.CLF_Wrapper(args.num_cores, use_rf)
 
 	# Load elution data
- 	foundprots, elution_datas = utils.load_data(args.input_dir, this_scores, fc=args.frac_count, mfc=args.elution_max_count)
+	foundprots, elution_datas = utils.load_data(args.input_dir, this_scores, fc=args.frac_count, mfc=args.elution_max_count)
 
 	# Generate reference data set
 	gs = ""
 	if ((args.taxid != "" and  args.ppi != "") or (args.cluster != "" and  args.ppi != "" )):
-		print "Refernce from cluster and PPI are nor compatiple. Please supply ppi or complex reference, not both!"
+		print("Refernce from cluster and PPI are nor compatiple. Please supply ppi or complex reference, not both!")
 		sys.exit()
 
 	if args.taxid == "" and  args.ppi == "" and args.cluster == "":
-		print "Please supply a reference by setting taxid, cluster, or ppi tag"
+		print("Please supply a reference by setting taxid, cluster, or ppi tag")
 		sys.exit()
 
 	gs_clusters = []
 	if (args.taxid != "" and args.cluster == "" and args.ppi == ""):
-		print "Loading clusters from GO, CORUM, and Intact"
+		print("Loading clusters from GO, CORUM, and Intact")
 		gs_clusters.extend(utils.get_reference_from_net(args.taxid))
 
 	if args.cluster != "":
-		print "Loading complexes from file"
+		print("Loading complexes from file")
 		if args.mode == "FA":
 			gs_clusters.append(GS.FileClusters(args.cluster, "all"))
 		else:
 			gs_clusters.append(GS.FileClusters(args.cluster, foundprots))
 
 	if args.ppi != "":
-		print "Reading PPI file from %s" % args.reference
+		print("Reading PPI file from %s" % args.reference)
 		gs = Goldstandard_from_PPI_File(args.ppi, foundprots)
 
 
 
-	print gs_clusters
-	if 	len(gs_clusters)>0:
+	print(gs_clusters)
+	if	len(gs_clusters)>0:
 		gs = utils.create_goldstandard(gs_clusters, args.taxid, foundprots)
 
 	output_dir = args.output_dir + os.sep + args.output_prefix
@@ -139,26 +139,26 @@ def main():
 	if args.precalcualted_score_file == "NONE":
 		scoreCalc.calculate_coelutionDatas(gs)
 	else:
- 		scoreCalc.readTable(args.precalcualted_score_file, gs)
+		scoreCalc.readTable(args.precalcualted_score_file, gs)
 
-	print scoreCalc.scores.shape
+	print(scoreCalc.scores.shape)
 
 	functionalData = ""
 	gs.positive = set(gs.positive & set(scoreCalc.ppiToIndex.keys()))
 	gs.negative = set(gs.negative & set(scoreCalc.ppiToIndex.keys()))
 	gs.rebalance()
 
-	print len(gs.positive)
-	print len(gs.negative)
+	print(len(gs.positive))
+	print(len(gs.negative))
 
 
 	if args.mode != "EXP":
-		print "Loading functional data"
+		print("Loading functional data")
 		functionalData = utils.get_FA_data(args.fun_anno_source, args.taxid, args.fun_anno_file)
-		print "Dimension of fun anno " + str(functionalData.scores.shape)
+		print("Dimension of fun anno " + str(functionalData.scores.shape))
 
 
-	print "Start benchmarking"
+	print("Start benchmarking")
 
 	if args.mode == "EXP":
 		utils.cv_bench_clf(scoreCalc, clf, gs, output_dir, format="pdf", verbose=True, folds = 5)
@@ -172,7 +172,7 @@ def main():
 		utils.cv_bench_clf(functionalData, clf, gs, output_dir, format="pdf", verbose=True, folds= 5)
 
 	# PPI evaluation
-	print utils.cv_bench_clf(scoreCalc, clf, gs, args.output_dir, verbose=False, format="pdf", folds=5)
+	print(utils.cv_bench_clf(scoreCalc, clf, gs, args.output_dir, verbose=False, format="pdf", folds=5))
 	#print "I am here"
 
 	network = utils.make_predictions(scoreCalc, args.mode, clf, gs, fun_anno=functionalData)
@@ -197,14 +197,14 @@ def main():
 	pred_clusters = GS.Clusters(False)
 	pred_clusters.read_file("%s.clust.txt" % (output_dir))
 	overlapped_complexes_with_reference = gs.get_complexes().get_overlapped_complexes_set(pred_clusters)
-	print "# of complexes in reference dataset: " + str(len(overlapped_complexes_with_reference))
+	print("# of complexes in reference dataset: " + str(len(overlapped_complexes_with_reference)))
 	#clust_scores, header = utils.clustering_evaluation(gs.complexes, pred_clusters, "", False)
 	clust_scores, header, composite_score = utils.clustering_evaluation(gs.complexes, pred_clusters, "", False)
 	outFH = open("%s.eval.txt" % (output_dir), "w")
 	header = header.split("\t")
 	clust_scores = clust_scores.split("\t")
 	for i, head in enumerate(header):
-		print "%s\t%s" % (head, clust_scores[i])
+		print("%s\t%s" % (head, clust_scores[i]))
 		print >> outFH, "%s\t%s" % (head, clust_scores[i])
 	outFH.close()
 

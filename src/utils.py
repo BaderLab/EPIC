@@ -114,7 +114,7 @@ def cv_bench_clf(scoreCalc, clf, gs, outDir, verbose=False, format="pdf", folds 
 	#if verbose:
 		#val_scores = [precision, recall, fmeasure, auc_pr, auc_roc]
 		#for i in range(len(rownames)):
-			#print str(rownames[i]) + "\t" + str(val_scores[i])
+			#print(str(rownames[i]) + "\t" + str(val_scores[i]))
 	return rownames, [precision, recall, fmeasure, auc_pr, auc_roc]
 
 def bench_clf(scoreCalc, train, eval, clf, outDir, verbose=False, format = "pdf"):
@@ -133,8 +133,8 @@ def bench_clf(scoreCalc, train, eval, clf, outDir, verbose=False, format = "pdf"
 		rownames = ["Precision", "Recall", "F-Measure", "AUC PR", "AUC ROC"]
 		val_scores = [precision, recall, fmeasure, auc_pr, auc_roc]
 		for i in range(len(rownames)):
-			print rownames[i]
-			print val_scores[i]
+			print(rownames[i])
+			print(val_scores[i])
 
 
 
@@ -147,8 +147,8 @@ def make_predictions_cross_validation(scoreCalc, train, eval, clf):
 	eval_names, data_eval, targets_eval = scoreCalc.toSklearnData(eval)
 	if len(eval_names) == 0: return networkDic
 
-	print "To pred"
-	print data_eval.shape
+	print("To pred")
+	print(data_eval.shape)
 
 	tmp_clf = copy.deepcopy(clf)
 	tmp_clf.fit(data_train, targets_train)
@@ -200,7 +200,7 @@ def predictInteractions(scoreCalc, clf, gs, to_train=True, verbose= True):
 		pred_class = clf.predict(scores)
 		for i, prediction in enumerate(pred_class):
 			if prediction == 1:
-				out.append("%s\t%f" % (edges[i], pred_prob[i]))	#Alternative code that also print label:out.append("%s\t%f\t%i" % (edges[i], pred_prob[i], prediction))
+				out.append("%s\t%f" % (edges[i], pred_prob[i]))	#Alternative code that also print(label:out.append("%s\t%f\t%i" % (edges[i], pred_prob[i], prediction)))
 		return out
 
 	out = []
@@ -209,14 +209,14 @@ def predictInteractions(scoreCalc, clf, gs, to_train=True, verbose= True):
 	k = 0
 	chunk_num=1
 	scoreCalc.open()
-	print "to predict: %i" % scoreCalc.to_predict
+	print("to predict: %i" % scoreCalc.to_predict)
 	for line in range(scoreCalc.to_predict):
 		if k % 100000==0 and k != 0:
 			out.extend(getPredictions(tmpscores[0:k, :], edges[0:k], clf))
 			tmpscores = np.zeros((100000, num_features))
 			edges = [""] * 100000
 			if verbose:
-				print "Completed chunk %i" % chunk_num
+				print("Completed chunk %i" % chunk_num)
 				chunk_num += 1
 			k = 0
 		edge, edge_scores = scoreCalc.get_next()
@@ -244,7 +244,7 @@ def get_FA_data(anno_source, taxid, file="", datadir = ""):
 
 	elif anno_source == "FILE":
 		if file == "":
-			print "When using FILE tag please suppy path to file containing functional annotation using -F file+path"
+			print("When using FILE tag please suppy path to file containing functional annotation using -F file+path")
 			sys.exit()
 		# the supplied functional evidence data needs to have the correct header row...
 		externaldata = CS.ExternalEvidence(file)
@@ -252,7 +252,7 @@ def get_FA_data(anno_source, taxid, file="", datadir = ""):
 		functionalData = externaldata.getScoreCalc()
 
 	else:
-		print "EPIC only support GeneMane, STRING, and flat file input please use the followign tags for anno_source GM, STRING, FILE. Returning empty string object."
+		print("EPIC only support GeneMane, STRING, and flat file input please use the followign tags for anno_source GM, STRING, FILE. Returning empty string object.")
 	return functionalData
 
 def make_predictions(score_calc, mode, clf, gs, fun_anno="", verbose = False):
@@ -273,21 +273,21 @@ def make_predictions(score_calc, mode, clf, gs, fun_anno="", verbose = False):
 	if mode == "FA"or mode == "BR":
 		if fun_anno=="":
 			# TODO make illigal argument error
-			print "if using only functional annotation for prediction functional annotation (fun_anno param != "") must not be empty"
+			print("if using only functional annotation for prediction functional annotation (fun_anno param != "") must not be empty")
 			sys.exit()
 		networks.append(predictInteractions(fun_anno, clf, gs, True, verbose))
 
 	#predict using both functional annotation and exp
 	if mode == "COMB" or mode == "BR":
 		tmp_score_calc = copy.deepcopy(score_calc)
-		print tmp_score_calc.scores.shape
+		print(tmp_score_calc.scores.shape)
 		tmp_score_calc.add_fun_anno(fun_anno)
-		print tmp_score_calc.scores.shape
+		print(tmp_score_calc.scores.shape)
 		networks.append(predictInteractions(tmp_score_calc, clf, gs, True, verbose))
 
 	# return error when no networks is predicted
 	if len(networks) == 0:
-		print "Error no networks predicted"
+		print("Error no networks predicted")
 		sys.exit()
 	# return finised network when only one network is predicted, which happens in any mode expect final
 	elif len(networks) ==1:
@@ -382,14 +382,14 @@ def clustering_evaluation(eval_comp, pred_comp, prefix, verbose= True):
 		tmp_scores = cluster_scores.split("\t")
 		#composite_score = 0
 		for i in range(len(tmp_head)):
-			print "%s\t%s" % (tmp_head[i], tmp_scores[i])
+			print("%s\t%s" % (tmp_head[i], tmp_scores[i]))
 
 			# add composite score output.
 			# added by Lucas HU, a trial function.
 			if tmp_head[i] == "mmr" or tmp_head[i] == "overlapp" or tmp_head[i] == "accuracy":
 				composite_score = composite_score + float(tmp_scores[i])
 
-		print "composite score is: " + str(composite_score)
+		print("composite score is: " + str(composite_score))
 
 	return cluster_scores, head, composite_score
 
@@ -556,14 +556,14 @@ def stability_evaluation(n_fold, all_gs, scoreCalc, clf, output_dir, mode, anno_
 
 		train, eval = tmp_train_eval_container[index]
 
-		print "All comp:%i" % len(all_gs.complexes.complexes)
-		print "Train comp:%i" % len(train.complexes.complexes)
-		print "Eval comp:%i" % len(eval.complexes.complexes)
+		print("All comp:%i" % len(all_gs.complexes.complexes))
+		print("Train comp:%i" % len(train.complexes.complexes))
+		print("Eval comp:%i" % len(eval.complexes.complexes))
 
-		print "Num valid ppis in training pos: %i" % len(train.positive)
-		print "Num valid ppis in training neg: %i" % len(train.negative)
-		print "Num valid ppis in eval pos: %i" % len(eval.positive)
-		print "Num valid ppis in eval neg: %i" % len(eval.negative)
+		print("Num valid ppis in training pos: %i" % len(train.positive))
+		print("Num valid ppis in training neg: %i" % len(train.negative))
+		print("Num valid ppis in eval pos: %i" % len(eval.positive))
+		print("Num valid ppis in eval neg: %i" % len(eval.negative))
 
 		# Evaluate classifier
 		bench_clf(scoreCalc, train, eval, clf, output_dir, verbose=True)
@@ -571,9 +571,9 @@ def stability_evaluation(n_fold, all_gs, scoreCalc, clf, output_dir, mode, anno_
 		functionalData = ""
 		if mode != "exp":
 			functionalData = get_FA_data(anno_source, taxid, anno_F)
-			print functionalData.scores.shape
+			print(functionalData.scores.shape)
 
-		print "the functional evidence data shape is: "
+		print("the functional evidence data shape is: ")
 
 
 		# Predict protein interaction based on n_fold cross validation
@@ -595,7 +595,7 @@ def stability_evaluation(n_fold, all_gs, scoreCalc, clf, output_dir, mode, anno_
 
 		complexes_dict_for_each_fold[index] = pred_clusters
 
-		print "fold " + str(index+1) + "is done"
+		print("fold " + str(index+1) + "is done")
 
 	#create a matrix for storing overlapped matrix, each element in the matrix is a zero.
 	overlapped_ratio_matrix_PPIs = np.zeros((n_fold,n_fold))
@@ -614,8 +614,8 @@ def stability_evaluation(n_fold, all_gs, scoreCalc, clf, output_dir, mode, anno_
 
 			overlapped_ratio_matrix_complexes[i,j] = averaged_overlapped_complexes_no / ((len(complexes_dict_for_each_fold[i].get_complexes()) + len(complexes_dict_for_each_fold[j].get_complexes())) / 2)
 
-	print overlapped_ratio_matrix_PPIs
-	print overlapped_ratio_matrix_complexes
+	print(overlapped_ratio_matrix_PPIs)
+	print(overlapped_ratio_matrix_complexes)
 
 	# create the txt file to save the overlap matrix for stabilit testing.
 	filename1 = output_dir + " n_fold_corss_validation_PPIs overlap matrix.txt"

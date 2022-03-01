@@ -50,19 +50,19 @@ class Goldstandard_from_Complexes():
 				self.complexes.addComplex("%i;%s;%s" % (i, db_clust.name, compl), tmp_clust.complexes[compl])
 				i += 1
 
-		print "Total number of complexes %i in %s" % (total_complexes, self.name)
-		print "Number of complexes after ortholog mapping %i complexes in %s" % (len(self.complexes.complexes), self.name)
+		print("Total number of complexes %i in %s" % (total_complexes, self.name))
+		print("Number of complexes after ortholog mapping %i complexes in %s" % (len(self.complexes.complexes), self.name))
 
 		if found_prots != "":
 			self.complexes.remove_proteins(found_prots)
-			print "After removing not indetified proteins %i number of complexes in % s" % (len(self.complexes.complexes), self.name)
+			print("After removing not indetified proteins %i number of complexes in % s" % (len(self.complexes.complexes), self.name))
 
 		self.complexes.filter_complexes()
-		print "After size filtering %i number of complexes in % s" % (len(self.complexes.complexes), self.name)
+		print("After size filtering %i number of complexes in % s" % (len(self.complexes.complexes), self.name))
 
 		self.complexes.merge_complexes()
 		self.complexes.filter_complexes()
-		print "After mergning %i number of complexes in % s" % (len(self.complexes.complexes), self.name)
+		print("After mergning %i number of complexes in % s" % (len(self.complexes.complexes), self.name))
 
 		self.make_pos_neg_ppis()
 
@@ -227,8 +227,8 @@ class Goldstandard_from_Complexes():
 
 			round += 1
 
-		print "length of complex set one: " + str(len(itemindex_one))
-		print "length of complex set two: " + str(len(itemindex_zero))
+		print("length of complex set one: " + str(len(itemindex_one)))
+		print("length of complex set two: " + str(len(itemindex_zero)))
 
 		# randomize clusters
 		#rnd.shuffle(ref_cluster_ids)
@@ -272,16 +272,16 @@ class Goldstandard_from_Complexes():
 			len_over_positive = len(train[0] & evaluate[0])
 			len_over_negative = len(train[1] & evaluate[1])
 
-			print len_train_positive
-			print len_eva_positive
-			print len_train_negative
-			print len_eva_negative
+			print(len_train_positive)
+			print(len_eva_positive)
+			print(len_train_negative)
+			print(len_eva_negative)
 
 
-			print "number of train and evaluation PPIs:"
-			print len_train_positive + len_train_negative
-			print "number of overlapped PPIs:"
-			print len_over_positive + len_over_negative
+			print("number of train and evaluation PPIs:")
+			print(len_train_positive + len_train_negative)
+			print("number of overlapped PPIs:")
+			print(len_over_positive + len_over_negative)
 
 			out_folds.append((training, evaluation))
 
@@ -346,12 +346,12 @@ class Goldstandard_from_Complexes():
 	# 		len_over_negative = len(train[1] & evaluate[1])
     #
     #
-	# 		print len_train_positive
-	# 		print len_eva_positive
-	# 		print len_over_positive
-	# 		print len_train_negative
-	# 		print len_eva_negative
-	# 		print len_over_negative
+	# 		print(len_train_positive)
+	# 		print(len_eva_positive)
+	# 		print(len_over_positive)
+	# 		print(len_train_negative)
+	# 		print(len_eva_negative)
+	# 		print(len_over_negative)
 	# 		sys.exit()
     #
 	# 		out_folds.append((training, evaluation))
@@ -476,9 +476,9 @@ class Goldstandard_from_Complexes():
 
 			training_evaluation_dictionary["turpleKey"].append((training, evaluation))
 
-			print "the number of training negatives and positives for corss validation "
-			print len(training.get_negative())
-			print len(training.get_positive())
+			print("the number of training negatives and positives for corss validation ")
+			print(len(training.get_negative()))
+			print(len(training.get_positive()))
 
 		return training_evaluation_dictionary
 
@@ -747,7 +747,7 @@ class Clusters():
 			all_proteins_count += len(prots)
 		clusterFH.close()
 
-		print "Average size of predicted complexes is: " + str((all_proteins_count)/i)
+		print("Average size of predicted complexes is: " + str((all_proteins_count)/i))
 
 	def write_cuslter_file(self, outF):
 		outFH = open(outF, "w")
@@ -1044,9 +1044,9 @@ class QuickGO():
 	# 	go_to_prot_map = {}
 	# 	prot_to_go_map = {}
 	# 	quickgoURL = "http://www.ebi.ac.uk/QuickGO-Old/GAnnotation?goid=GO:0043234&tax=%s&format=tsv&limit=1000000000&evidence=IDA,IPI,EXP," % (self.taxid)
-	# 	print quickgoURL
-	# 	print self.taxid
-	# 	print "the url is: ..."
+	# 	print(quickgoURL)
+	# 	print(self.taxid)
+	# 	print("the url is: ...")
 	# 	quickgoURL_FH = urllib2.urlopen(quickgoURL)
 	# 	quickgoURL_FH.readline()
 	# 	for line in quickgoURL_FH:
@@ -1094,7 +1094,7 @@ class Inparanoid():
 				xmldoc = self.getXML()
 				self.orthmap, self.orthgroups = self.parseXML(xmldoc)
 			else:
-				print "Taxid:%s not supported" % taxid
+				print("Taxid:%s not supported" % taxid)
 
 	def mapProtein(self, prot):
 		if prot not in self.orthmap: return None
@@ -1127,7 +1127,7 @@ class Inparanoid():
 				if prot in self.orthmap:
 					mapped_members.add(self.orthmap[prot])
 #				else:
-#					print "No map for %s" % prot
+#					print("No map for %s" % prot)
 
 			if len(mapped_members)==0:
 				todel.add(clust)

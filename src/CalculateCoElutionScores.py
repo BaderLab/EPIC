@@ -141,7 +141,7 @@ class ElutionData():
 				pro_list.append(protID)
 			else:
 				removed += 1
-		print "finished processing %s\n removed %i (%.2f, total: %i, after filtering: %i) proteins found in less than %i fraction" % (elutionProfileF, removed, removed/(removed + len(prot2Index)), removed + len(prot2Index), len(prot2Index), frac_count)
+		print("finished processing %s\n removed %i (%.2f, total: %i, after filtering: %i) proteins found in less than %i fraction" % (elutionProfileF, removed, removed/(removed + len(prot2Index)), removed + len(prot2Index), len(prot2Index), frac_count))
 		elutionProfileFH.close()
 		elutionMat = np.nan_to_num(np.matrix(elutionMat))
 		return elutionMat, prot2Index
@@ -609,7 +609,7 @@ class Genemania:
 			for fp in self.files:                        #for de-bugging, I only used the first three files
 				filename = str(fp.split('/')[-1])
 				if filename.startswith(f_evidence):
-					print "Processing: %s" % (filename)
+					print("Processing: %s" % (filename))
 					fh = urllib2.urlopen(fp)
 					fh.readline()
 					for line in fh:
@@ -1082,8 +1082,8 @@ class CLF_Wrapper:
 		this_targets = []
 		i = 1
 		for train, test in skf.split(data, targets):
-			#print "Processing fold %i" % i
-			print "Processing data..."
+			#print("Processing fold %i" % i)
+			print("Processing data...")
 			i += 1
 			self.fit(data[train], targets[train])
 			probs.extend(self.predict_proba(data[test]))
@@ -1108,7 +1108,7 @@ class MLP_wrapper(object):
 
 
 	def __init__(self):
-		print "Using MLP with Keras/tensorflow"
+		print("Using MLP with Keras/tensorflow")
 		self.model = Sequential()
 
 	def fit(self, data, labels):
@@ -1133,12 +1133,12 @@ class MLP_wrapper(object):
 class SAE_wrapper(MLP_wrapper):
 
 	def __init__(self):
-		print "Using stacked autoencoder"
+		print("Using stacked autoencoder")
 
 
 	def fit(self, data, labels):
-		print data.shape
-		print len(labels)
+		print(data.shape)
+		print(len(labels))
 		num_features = data.shape[1]
 		input = Input(shape=(num_features,))
 
@@ -1250,7 +1250,7 @@ class STRING:
 			return response.getroot()[0][0].text
 		except urllib2.HTTPError as err:
 			error_message = err.read()
-			print error_message
+			print(error_message)
 			sys.exit()
 
 
