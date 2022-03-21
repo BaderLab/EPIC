@@ -91,6 +91,12 @@ def getScore(inputQ, outputList):
 		inputQ.task_done()
 
 
+def toFloat(x):
+	try:
+		f=float(x)
+		return f
+	except ValueError:
+		return np.nan
 
 
 
@@ -131,7 +137,7 @@ class ElutionData():
 			line = line.rstrip()
 			line = line.split("\t")
 			protID = line[0]
-			counts = map(float, line[1:])
+			counts = map(toFloat, line[1:])
 			counts_array = np.array(counts)
 			counts_array[np.isnan(counts_array)] = 0.0
 			if len(list(set(np.where(np.array(counts_array) > 0.0)[0]))) >= frac_count and max(counts_array) >= max_count_cutoff:
