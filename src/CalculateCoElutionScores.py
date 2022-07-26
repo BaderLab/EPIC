@@ -33,6 +33,7 @@ import re
 import gzip
 import requests
 
+
 #from keras.models import Sequential, Model
 #from keras.layers import Dense, Dropout, Input
 #from keras import regularizers
@@ -1272,10 +1273,11 @@ class STRING:
 		# read the local .gz file and store STRING_id and its uniprot_id to a dictionary
 		with gzip.open(filename_protein, 'r') as fin:
 			for line in fin:
-				line.rstrip()
+				line = line.rstrip()
 				items = line.split()
 				# only read the uniprot ID into the dictionary...
-				if len(items) >= 3 and "BLAST_UniProt_AC Ensembl_UniProt_AC" in line:
+				#if len(items) >= 3 and "BLAST_UniProt_AC Ensembl_UniProt_AC" in line:
+				if len(items) >= 3 and "Ensembl_UniProt_AC" in line: # STRING database got updated, so the above line is not working anyore 26/07/2022
 					self.nameMappingDict[items[0]] = items[1]  # key is STRING protein ID and value is Uniprot ID
 		fin.close()
 
@@ -1302,8 +1304,9 @@ class STRING:
 		# then read the .gz file
 		with gzip.open(filename_interaction, 'r') as fin:
 			for line in fin:
-				line.rstrip()
-				items = line.split()
+				line = line.rstrip()
+				items = line.split(" ")
+
 				if "protein1 protein2" in line:
 
 					# if changing the evidence, here is also changing
@@ -1331,6 +1334,7 @@ class STRING:
 						usefulScores[0:4] = score[0:4]
 
 						temp_score_dict[edge] = usefulScores
+
 		print ("finish reading protein-protein functional evidence data from STRING")
 		fin.close()
 
