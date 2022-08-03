@@ -651,50 +651,109 @@ class Genemania:
 	def getScoreCalc(self):
 		return self.scoreCalc
 
-
+	########
+	#######
+	########
 	# @author: Lucas Ming Hu
+	# This is the new code, since Uniprot updated its API, the old code is not working anymore, 03-Aug-2022
 	# read name mapping database and put Uniprot and corresponding GeneMANIA name into a dictionary
 	# key: GeneMANIA_name value: Uniprot_name
 	def map_proteinNames(self):
-		
-		taxoIDurl = {'6239':'http://www.uniprot.org/uniprot/?query=taxonomy%3A6239&sort=score&columns=id,genes(ORF)&format=tab',
-					 '3702':'http://www.uniprot.org/uniprot/?query=taxonomy%3A3702&sort=score&columns=id,genes(OLN)&format=tab',
-					 '7955':'http://www.uniprot.org/uniprot/?query=taxonomy%3A7955&sort=score&columns=id,database(Ensembl)&format=tab',
-					 '7227':'http://www.uniprot.org/uniprot/?query=taxonomy%3A7227&sort=score&columns=id,database(FlyBase)&format=tab',
-					 '4932':'http://www.uniprot.org/uniprot/?query=taxonomy%3A4932&sort=score&columns=id,genes&format=tab'}
 
-		response = urllib2.urlopen(taxoIDurl[self.taxoID])
-		
-		html = response.readlines() #return everything in a list, each item in the list is a line in original file
-		
+		taxoIDspeciesDic = {'3702': 'Arabidopsis_thaliana', '6239': 'Caenorhabditis_elegans', '7955': 'Danio_rerio',
+							'7227': 'Drosophila_melanogaster', '562': 'Escherichia_coli', '9606': 'Homo_sapiens',
+							'10090': 'Mus_musculus', '10116': 'Rattus_norvegicus',
+							'4932': 'Saccharomyces_cerevisiae'}
+
+		taxoIDurl = {
+			'6239': 'http://www.uniprot.org/uniprot/?query=taxonomy%3A6239&sort=score&columns=id,genes(ORF)&format=tab',
+			'3702': 'http://www.uniprot.org/uniprot/?query=taxonomy%3A3702&sort=score&columns=id,genes(OLN)&format=tab',
+			'7955': 'http://www.uniprot.org/uniprot/?query=taxonomy%3A7955&sort=score&columns=id,database(Ensembl)&format=tab',
+			'7227': 'http://www.uniprot.org/uniprot/?query=taxonomy%3A7227&sort=score&columns=id,database(FlyBase)&format=tab',
+			'4932': 'http://www.uniprot.org/uniprot/?query=taxonomy%3A4932&sort=score&columns=id,genes&format=tab'}
+
+		species = taxoIDspeciesDic[self.taxoID]
+		response = urllib2.urlopen(
+			"http://genemania.org/data/archive/2014-10-15/" + species + "/identifier_mappings.txt")
+
+		html = response.readlines()  # return everything in a list, each item in the list is a line in original file
+
 		unipront_geneNames_dic = {}
-		
-		for item in html[1:]:
-			
-			items = item.split("\t")
-			uniprot = items[0]
 
-			geneNames = items[1].strip(';') #some names has ; at the end
-			geneNames = items[1].strip()
-			
-			genes_list = re.split('[;\s\|\/]', geneNames)
-			
-			new_list = list(genes_list) #make a new list to clone original list, otherwise, the code wont work.
-			
-			for gene_names in genes_list:
-			    
-				if "CELE" in gene_names:
-					new_list.remove(gene_names)
-			
-			new_list = filter(None, new_list) #remove the empty item from the list
-				
-			if len(new_list) > 0 :
-				unipront_geneNames_dic[uniprot] = new_list
-			
+
+
+		for item in html[1:]:
+
+			if "Uniprot" in item and "_HUMAN" not in item:
+
+				item = item.strip()
+
+				items = item.split("\t")
+				gene_mania_id = items[0]
+				uniprot = items[1]
+
+				if uniprot not in unipront_geneNames_dic:
+					unipront_geneNames_dic[uniprot] = []
+					unipront_geneNames_dic[uniprot].append(gene_mania_id)
+				else:
+					unipront_geneNames_dic[uniprot].append(gene_mania_id)
+
 		for key, value in unipront_geneNames_dic.iteritems():
 			for i in range(0, len(value)):
 				if value[i] not in self.nameMappingDict:
 					self.nameMappingDict[value[i]] = key
+
+
+	#######
+	#######
+	#######
+
+
+	# # @author: Lucas Ming Hu
+	# # This is the old code, since Uniprot updated its API, this is not working anymore, 03-Aug-2022
+	# # read name mapping database and put Uniprot and corresponding GeneMANIA name into a dictionary
+	# # key: GeneMANIA_name value: Uniprot_name
+	# def map_proteinNames(self):
+	#
+	# 	taxoIDurl = {'6239':'http://www.uniprot.org/uniprot/?query=taxonomy%3A6239&sort=score&columns=id,genes(ORF)&format=tab',
+	# 				 '3702':'http://www.uniprot.org/uniprot/?query=taxonomy%3A3702&sort=score&columns=id,genes(OLN)&format=tab',
+	# 				 '7955':'http://www.uniprot.org/uniprot/?query=taxonomy%3A7955&sort=score&columns=id,database(Ensembl)&format=tab',
+	# 				 '7227':'http://www.uniprot.org/uniprot/?query=taxonomy%3A7227&sort=score&columns=id,database(FlyBase)&format=tab',
+	# 				 '4932':'http://www.uniprot.org/uniprot/?query=taxonomy%3A4932&sort=score&columns=id,genes&format=tab'}
+	#
+	# 	response = urllib2.urlopen(taxoIDurl[self.taxoID])
+	#
+	# 	html = response.readlines() #return everything in a list, each item in the list is a line in original file
+	#
+	# 	unipront_geneNames_dic = {}
+	#
+	# 	for item in html[1:]:
+	#
+	# 		items = item.split("\t")
+	# 		uniprot = items[0]
+	#
+	# 		geneNames = items[1].strip(';') #some names has ; at the end
+	# 		geneNames = items[1].strip()
+	#
+	# 		genes_list = re.split('[;\s\|\/]', geneNames)
+	#
+	# 		new_list = list(genes_list) #make a new list to clone original list, otherwise, the code wont work.
+	#
+	# 		for gene_names in genes_list:
+	#
+	# 			if "CELE" in gene_names:
+	# 				new_list.remove(gene_names)
+	#
+	# 		new_list = filter(None, new_list) #remove the empty item from the list
+	#
+	# 		if len(new_list) > 0 :
+	# 			unipront_geneNames_dic[uniprot] = new_list
+	#
+	# 	for key, value in unipront_geneNames_dic.iteritems():
+	# 		for i in range(0, len(value)):
+	# 			if value[i] not in self.nameMappingDict:
+	# 				self.nameMappingDict[value[i]] = key
+
 
 
 
